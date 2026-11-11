@@ -46,6 +46,7 @@ const motion = createMotion({
   screen: $("#screen"),
   modalRoot: root,
   clearInput: () => pressed.clear(),
+  paintScene: () => drawScene(ctx, state, performance.now()),
 });
 let storyLines = [],
   storyAfter = null,
@@ -858,7 +859,7 @@ function learnPending() {
 function move(dir) {
   if (motion.locked || document.querySelector("#rewardsDialog[open]")) return;
   if (!state || modal || battle || storyLines.length) return;
-  let now = Date.now();
+  let now = performance.now();
   if (now - lastStep < 140) return;
   lastStep = now;
   state.dir = dir;
@@ -1608,29 +1609,36 @@ document.addEventListener("visibilitychange", () => {
     save();
   }
 });
-document.querySelectorAll("[data-dir]").forEach((b) => {
-  b.onpointerdown = (e) => {
-    e.preventDefault();
-    b.setPointerCapture(e.pointerId);
-    pressed.add(b.dataset.dir);
-    move(b.dataset.dir);
+let activeDpadPointer = null;
+document.querySelectorAll("[data-dir]").forEach((button) => {
+  button.onpointerdown = (event) => {
+    if (event.isPrimary === false || event.button > 0) return;
+    event.preventDefault();
+    activeDpadPointer = event.pointerId;
+    pressed.clear();
+    try {
+      button.setPointerCapture(event.pointerId);
+    } catch {}
+    pressed.add(button.dataset.dir);
+    move(button.dataset.dir);
   };
-  b.onpointerup =
-    b.onpointercancel =
-    b.onlostpointercapture =
-      () => pressed.delete(b.dataset.dir);
+  button.onpointerup =
+    button.onpointercancel =
+    button.onlostpointercapture =
+      (event) => {
+        if (event.pointerId !== activeDpadPointer) return;
+        activeDpadPointer = null;
+        pressed.clear();
+      };
 });
 window.addEventListener("beforeunload", save);
-let lastTick = 0;
 function loop(t) {
-  if (t - lastTick > 16) {
-    if (pressed.size) move([...pressed].at(-1));
-    if (state) canvas.setAttribute("data-position", `${state.x},${state.y}`);
-    drawScene(ctx, state, t);
-    lastTick = t;
-  }
+  if (pressed.size) move([...pressed].at(-1));
+  if (state) canvas.setAttribute("data-position", `${state.x},${state.y}`);
+  drawScene(ctx, state, t);
   requestAnimationFrame(loop);
 }
+
 try {
   let response = await fetch("assets/data.json");
   if (!response.ok) throw Error("Data failed to load");
