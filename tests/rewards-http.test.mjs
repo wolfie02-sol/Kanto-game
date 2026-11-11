@@ -38,6 +38,11 @@ try {
       headers: { "Content-Type": "application/json", Cookie: cookie, ...extra },
       body: JSON.stringify(body),
     });
+  for (const junk of [null, [], 7]) {
+    const bad = await post("/api/challenges/start", junk);
+    assert.equal(bad.status, 400);
+    assert.equal((await bad.json()).error, "Invalid request");
+  }
   assert.equal(
     (
       await post(

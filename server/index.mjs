@@ -76,6 +76,8 @@ const server = http.createServer(async (req, res) => {
         return json(res, 413, { error: "Request too large" });
     }
     if (raw) body = JSON.parse(raw);
+    if (!body || typeof body !== "object" || Array.isArray(body))
+      return json(res, 400, { error: "Invalid request" });
     const route = `${req.method} ${url.pathname}`;
     let result;
     switch (route) {

@@ -1,10 +1,10 @@
 {
   "name": "kanto-game",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "type": "module",
   "private": true,
   "scripts": {
-    "test": "node tests/battle.test.mjs && node tests/story.test.mjs && node tests/audit-regressions.test.mjs && node --test tests/rewards.test.mjs && node tests/rewards-http.test.mjs && node tests/server-smoke.test.mjs && node --test tests/motion.test.mjs && node --test tests/interface.test.mjs && node --test tests/locomotion.test.mjs",
+    "test": "node tests/battle.test.mjs && node tests/story.test.mjs && node tests/audit-regressions.test.mjs && node --test tests/engine-regressions.test.mjs && node --test tests/rewards.test.mjs && node tests/rewards-http.test.mjs && node tests/server-smoke.test.mjs && node --test tests/motion.test.mjs && node --test tests/interface.test.mjs && node --test tests/locomotion.test.mjs",
     "build": "node scripts/check.mjs",
     "prepare-data": "python3 src/prepare_data.py",
     "start": "node --env-file-if-exists=.env server/index.mjs",

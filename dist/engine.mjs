@@ -141,6 +141,22 @@ export function heal(p) {
   freshVolatile(p);
 }
 export function gainExp(p, amount) {
+  if (p.transformed) {
+    // Experience, learnsets and evolution belong to the real species, not the copy.
+    let copy = p.id,
+      copyMoves = p.moves;
+    p.id = p.transformed;
+    p.moves = p.originalMoves;
+    delete p.transformed;
+    try {
+      return gainExp(p, amount);
+    } finally {
+      p.transformed = p.id;
+      p.originalMoves = p.moves;
+      p.id = copy;
+      p.moves = copyMoves;
+    }
+  }
   let logs = [];
   p.xp += amount;
   while (p.level < 100 && p.xp >= expAt(p, p.level + 1)) {
@@ -245,15 +261,18 @@ export function captureChance(p, kind = "ball", rng = Math.random) {
   );
   return Math.floor(rng() * 256) <= f;
 }
-function statusApply(a, d, status, logs, rng = Math.random) {
-  if (d.status || d.sub) return;
+function statusApply(a, d, status, logs, rng = Math.random, announce = false) {
   let t = typesOf(d);
   if (
+    d.status ||
+    d.sub ||
     (status === "psn" && t.includes("poison")) ||
     (status === "brn" && t.includes("fire")) ||
     (status === "frz" && t.includes("ice"))
-  )
+  ) {
+    if (announce) logs.push("But it failed!");
     return;
+  }
   d.status = status;
   if (status === "slp") d.sleep = 1 + Math.floor(rng() * 7);
   logs.push(
@@ -269,6 +288,20 @@ function hit(p, amount) {
   let d = Math.min(p.hp, amount);
   p.hp -= d;
   return d;
+}
+// Metronome and Mirror Move run another move through a one-slot moveset.
+function callMove(a, d, id, logs, rng, depth) {
+  let before = a.callerMoves ?? a.moves;
+  a.callerMoves = before;
+  a.moves = [{ id, pp: 1 }];
+  let wasTransformed = a.transformed;
+  try {
+    useMove(a, d, 0, logs, rng, depth + 1);
+  } finally {
+    if (depth === 0) delete a.callerMoves;
+    // A called Transform keeps the copied moveset; otherwise restore the real one.
+    if (!a.transformed || wasTransformed) a.moves = before;
+  }
 }
 function useMove(a, d, slot, logs, rng, depth = 0) {
   if (a.hp <= 0 || d.hp <= 0) return;
@@ -325,16 +358,13 @@ function useMove(a, d, slot, logs, rng, depth = 0) {
       .map(Number)
       .filter((x) => x !== 118 && x !== 165);
     let chosen = options[Math.floor(rng() * options.length)];
-    let before = a.moves;
-    a.moves = [{ id: chosen, pp: 1 }];
-    useMove(a, d, 0, logs, rng, depth + 1);
-    a.moves = before;
+    callMove(a, d, chosen, logs, rng, depth);
     return;
   }
   if (id === 144) {
     if (!a.transformed) {
       a.transformed = a.id;
-      a.originalMoves = a.moves;
+      a.originalMoves = a.callerMoves ?? a.moves;
     }
     a.id = d.id;
     a.moves = d.moves.map((m) => ({ id: m.id, pp: 5 }));
@@ -354,6 +384,7 @@ function useMove(a, d, slot, logs, rng, depth = 0) {
   if (m.accuracy && rng() >= Math.min(255 / 256, acc)) {
     logs.push("The attack missed!");
     if ([26, 136].includes(id)) hit(a, 1);
+    if ([120, 153].includes(id)) a.hp = 0;
     return;
   }
   let target = m.target_id === 7 ? a : d;
@@ -384,6 +415,10 @@ function useMove(a, d, slot, logs, rng, depth = 0) {
     return;
   }
   if ([105, 135, 156].includes(id)) {
+    if (a.hp >= stat(a, 0)) {
+      logs.push("But it failed!");
+      return;
+    }
     a.hp = Math.min(
       stat(a, 0),
       a.hp + Math.floor(stat(a, 0) * (id === 156 ? 1 : 0.5)),
@@ -405,10 +440,10 @@ function useMove(a, d, slot, logs, rng, depth = 0) {
     return;
   }
   if (id === 73) {
-    if (!typesOf(d).includes("grass")) {
+    if (!typesOf(d).includes("grass") && !d.seed && !d.sub) {
       d.seed = true;
       logs.push(`${species(d.id).name} was seeded!`);
-    }
+    } else logs.push("But it failed!");
     return;
   }
   if (id === 50) {
@@ -428,12 +463,9 @@ function useMove(a, d, slot, logs, rng, depth = 0) {
   }
   if (id === 102 || id === 119) {
     let last = d.lastMove;
-    if (last && last !== id && depth < 2) {
-      let before = a.moves;
-      a.moves = [{ id: last, pp: 1 }];
-      useMove(a, d, 0, logs, rng, depth + 1);
-      a.moves = before;
-    } else logs.push("But it failed!");
+    if (last && last !== id && depth < 2)
+      callMove(a, d, last, logs, rng, depth);
+    else logs.push("But it failed!");
     return;
   }
   if (id === 160) {
@@ -476,7 +508,8 @@ function useMove(a, d, slot, logs, rng, depth = 0) {
       let roll = rng();
       count = roll < 0.375 ? 2 : roll < 0.75 ? 3 : roll < 0.875 ? 4 : 5;
     }
-    let total = 0;
+    let total = 0,
+      landed = 0;
     for (let j = 0; j < count && d.hp > 0; j++) {
       let result = damage(a, d, m, rng);
       if (result.eff === 0) {
@@ -488,6 +521,11 @@ function useMove(a, d, slot, logs, rng, depth = 0) {
           ? d.hp
           : 0
         : (fixed ?? result.amount);
+      if (isOHKO && !amount) {
+        logs.push("But it failed!");
+        break;
+      }
+      landed++;
       let dealt = hit(d, amount);
       d.lastDamage = dealt;
       total += dealt;
@@ -497,7 +535,8 @@ function useMove(a, d, slot, logs, rng, depth = 0) {
         else if (result.eff < 1) logs.push("It's not very effective...");
       }
     }
-    if (count > 1) logs.push(`Hit ${count} times!`);
+    if (count > 1 && landed)
+      logs.push(`Hit ${landed} time${landed === 1 ? "" : "s"}!`);
     if (m.meta.drain > 0) {
       a.hp = Math.min(
         stat(a, 0),
@@ -523,9 +562,11 @@ function useMove(a, d, slot, logs, rng, depth = 0) {
     ? (m.effect_chance ?? m.meta.ailment_chance ?? 0) / 100
     : 1;
   if (d.hp > 0 && rng() < chance) {
-    if (ail === 6 && !d.sub) {
-      d.confusion = 2 + Math.floor(rng() * 4);
-      logs.push(`${species(d.id).name} became confused!`);
+    if (ail === 6) {
+      if (!d.sub && !d.confusion) {
+        d.confusion = 2 + Math.floor(rng() * 4);
+        logs.push(`${species(d.id).name} became confused!`);
+      } else if (!m.power) logs.push("But it failed!");
     } else if ({ 1: "par", 2: "slp", 3: "frz", 4: "brn", 5: "psn" }[ail])
       statusApply(
         a,
@@ -533,6 +574,7 @@ function useMove(a, d, slot, logs, rng, depth = 0) {
         { 1: "par", 2: "slp", 3: "frz", 4: "brn", 5: "psn" }[ail],
         logs,
         rng,
+        !m.power,
       );
   }
   if (d.status === "frz" && m.type === "fire" && m.power) {
@@ -567,7 +609,7 @@ export class Battle {
   enemyMove() {
     let ms = this.enemy.moves
       .map((m, i) => ({ ...moveData(m.id), ...m, i }))
-      .filter((m) => m.pp > 0);
+      .filter((m) => m.pp > 0 && m.id !== this.enemy.disabled);
     if (!ms.length) return 0;
     let rng = this.rng;
     let ranked = ms
@@ -575,8 +617,8 @@ export class Battle {
         i: m.i,
         s:
           (m.power || 20) *
-          effectiveness(m.type, species(this.player.id).types) *
-          (species(this.enemy.id).types.includes(m.type) ? 1.5 : 1) *
+          effectiveness(m.type, typesOf(this.player)) *
+          (typesOf(this.enemy).includes(m.type) ? 1.5 : 1) *
           (0.7 + rng() * 0.6),
       }))
       .sort((a, b) => b.s - a.s);
@@ -584,9 +626,13 @@ export class Battle {
   }
   act(action, bag) {
     if (this.outcome) return this.logs;
-    let logs = [];
+    let logs = [],
+      forcedSwitch = false;
     let a = this.player,
       d = this.enemy;
+    // Counter only answers damage taken this turn.
+    a.lastDamage = 0;
+    d.lastDamage = 0;
     if (a.hp <= 0 && action.type !== "switch")
       return (this.logs = ["Choose a healthy Pokémon."]);
     if (action.type === "switch") {
@@ -601,6 +647,7 @@ export class Battle {
       a = p;
       logs.push(`Go, ${species(a.id).name}!`);
       if (!wasFainted) useMove(d, a, this.enemyMove(), logs, this.rng);
+      else forcedSwitch = true;
     } else if (action.type === "ball") {
       if (this.trainer)
         return (this.logs = ["You can't catch a trainer's Pokémon!"]);
@@ -623,11 +670,11 @@ export class Battle {
     } else if (action.type === "run") {
       if (this.trainer)
         return (this.logs = ["You can't run from a trainer battle!"]);
-      this.turns++;
+      this.escapes = (this.escapes || 0) + 1;
       let chance =
         (effectiveStat(a, 4) * 32) /
           Math.max(1, Math.floor(effectiveStat(d, 4) / 4)) +
-        30 * this.turns;
+        30 * this.escapes;
       if (this.rng() * 256 < chance) {
         this.outcome = "escaped";
         return (this.logs = ["Got away safely!"]);
@@ -661,10 +708,12 @@ export class Battle {
         useMove(a, d, action.index, logs, this.rng);
       }
     }
-    for (let [p, other] of [
-      [a, d],
-      [d, a],
-    ]) {
+    for (let [p, other] of forcedSwitch
+      ? []
+      : [
+          [a, d],
+          [d, a],
+        ]) {
       if (p.hp <= 0) continue;
       if (["psn", "brn"].includes(p.status)) {
         p.hp = Math.max(0, p.hp - Math.max(1, Math.floor(stat(p, 0) / 16)));

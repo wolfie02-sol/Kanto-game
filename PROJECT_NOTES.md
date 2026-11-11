@@ -88,3 +88,14 @@ Dark collector display theme, native pixel-art town panorama, cached foliage/bui
 ## Version 2.3.1 — phone jitter and invisible fades
 
 Exact, time-based movement and idle positions; cached layouts; single-pointer D-pad. Frame-driven gentle opacity fades remain in reduced-motion mode. Scene content paints under cover; encounters and battle exits cover dialogs. Existing saves and gameplay rules remain compatible. See docs/MOTION_AND_PHONES.md for test scope and remaining device verification.
+
+## Version 2.3.2 — battle fixes and keyboard menus
+
+- Metronome or Mirror Move that becomes Transform no longer replaces the user's real moveset after battle.
+- A transformed Pokémon earns EXP, learns moves and evolves as its own species rather than the copied one.
+- The opponent no longer picks a disabled move (it used to turn into Struggle). Sending in a replacement after a faint no longer gives the opponent an extra poison/burn/Leech Seed tick. Escape odds rise once per attempt.
+- Counter only answers damage taken this turn. Self-Destruct and Explosion faint the user even on a miss. Recover, Soft-Boiled and Rest fail at full HP.
+- Status moves, Leech Seed and slower OHKO moves now say "But it failed!" instead of failing silently. Multi-hit moves report the hits that landed.
+- Enter/Space activate focused menu buttons. Arrow keys and Space no longer scroll the page during scene transitions.
+- The rewards API rejects JSON bodies that are not objects. Browser modules share one cache version, so `motion.mjs` loads once.
+- 13 engine regression checks in `tests/engine-regressions.test.mjs`. All nine deterministic campaigns still complete with these fixes; pacing is unchanged (about 1,800–2,200 wild battles).

@@ -1,5 +1,5 @@
-import { createMotion } from "./motion.mjs?v=2.3.1";
-import { mountRewards } from "./rewards.mjs";
+import { createMotion } from "./motion.mjs?v=2.3.2";
+import { mountRewards } from "./rewards.mjs?v=2.3.2";
 import {
   setData,
   species,
@@ -13,7 +13,7 @@ import {
   validateSave,
   freshVolatile,
   hasUsableMoves,
-} from "./engine.mjs";
+} from "./engine.mjs?v=2.3.2";
 import { ZONES, GYMS, LEAGUE, WATER, world } from "./world.mjs";
 import {
   newAdventure,
@@ -24,7 +24,11 @@ import {
   sceneName,
   roomTransition,
 } from "./story.mjs";
-import { drawScene, loadCharacters, drawTitlePanorama } from "./renderer.mjs?v=2.3.1";
+import {
+  drawScene,
+  loadCharacters,
+  drawTitlePanorama,
+} from "./renderer.mjs?v=2.3.2";
 const $ = (s) => document.querySelector(s),
   root = $("#modalRoot"),
   canvas = $("#world"),
@@ -1578,17 +1582,25 @@ document.addEventListener("keydown", (e) => {
     }
     return;
   }
-  if (motion.locked || document.querySelector("#rewardsDialog[open]")) return;
+  if (document.querySelector("#rewardsDialog[open]")) return;
   if (["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName)) return;
+  // Enter/Space on a menu button or keyboard-focused control must press that control.
+  const control = e.target.closest?.("button, a[href], summary");
+  if (
+    [" ", "Enter"].includes(e.key) &&
+    control &&
+    (root.contains(control) || control.matches(":focus-visible"))
+  )
+    return;
+  const actionKey = [" ", "Enter", "e", "E"].includes(e.key);
+  // Stop arrows and Space from scrolling the page, even during a scene transition.
+  if (keys[e.key] || actionKey) e.preventDefault();
+  if (motion.locked) return;
   if (keys[e.key]) {
-    e.preventDefault();
     pressed.add(keys[e.key]);
     move(keys[e.key]);
   }
-  if ([" ", "Enter", "e", "E"].includes(e.key)) {
-    e.preventDefault();
-    if (!e.repeat) interact();
-  }
+  if (actionKey && !e.repeat) interact();
   if (e.key === "Escape") {
     if (motion.locked || battle || storyLines.length) return;
     modal ? close() : state ? settings() : startModal();

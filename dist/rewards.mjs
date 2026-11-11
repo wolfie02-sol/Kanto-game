@@ -1,4 +1,4 @@
-import { animate } from "./motion.mjs";
+import { animate } from "./motion.mjs?v=2.3.2";
 /** Rewards UI: API results are authoritative. Animation never chooses an outcome. */
 export function mountRewards({ data, canOpen }) {
   const esc = (s) =>
