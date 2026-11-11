@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#263f36" />
+    <meta
+      name="description"
+      content="Wake up in Pallet Town. Name your trainer, meet your first Pokémon, and begin a richly detailed Kanto adventure."
+    />
+    <title>Pokémon · Kanto Journey</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="rework.css" />
+    <link rel="stylesheet" href="rewards.css" />
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="#" aria-label="Open title screen"
+        ><span class="pokeball"></span
+        ><span
+          >Kanto Journey<span class="brand-sub">A POKÉMON ADVENTURE</span></span
+        ></a
+      >
+      <nav>
+        <button class="navbtn active" data-view="adventure">Play</button
+        ><button class="navbtn" data-view="dex">Pokédex <span>151</span></button
+        ><button class="navbtn" data-view="map">Region map</button>
+      </nav>
+      <div class="header-right">
+        <span class="save-indicator" id="saveState"
+          >● YOUR ADVENTURE AWAITS</span
+        ><button
+          class="iconbtn"
+          id="settingsBtn"
+          title="Settings and save data"
+          aria-label="Settings"
+        >
+          ⚙
+        </button>
+      </div>
+    </header>
+    <main>
+      <div class="page-heading">
+        <div>
+          <div class="eyebrow" id="chapterLabel">
+            CHAPTER 01 <span class="chapter-line"></span> A NEW BEGINNING
+          </div>
+          <h1 id="pageTitle">There’s a whole world outside.</h1>
+        </div>
+        <div class="trainer-card">
+          <span class="trainer-avatar" id="trainerInitial">?</span>
+          <div>
+            <strong id="trainerName">YOUR STORY</strong
+            ><small id="trainerRank">The first page is yours.</small>
+          </div>
+          <span class="trainer-money" id="money">₽ 3,000</span>
+        </div>
+      </div>
+      <div class="game-layout">
+        <section class="game-column">
+          <div class="map-topline">
+            <div>
+              <span class="live-dot"></span
+              ><strong id="location">Your bedroom</strong
+              ><span id="zoneSub">Pallet Town · Kanto</span>
+            </div>
+            <div class="viewport-tools">
+              <button id="zoomBtn" class="textbtn">⌕ Close view</button
+              ><button
+                id="fullscreenBtn"
+                class="textbtn"
+                aria-label="Expand game"
+              >
+                ⛶
+              </button>
+            </div>
+          </div>
+          <div class="screen" id="screen">
+            <canvas
+              id="world"
+              width="384"
+              height="288"
+              aria-label="Pokémon world. Use arrow keys or WASD to move and E or Space to interact."
+              tabindex="0"
+            ></canvas>
+            <div class="scene-vignette"></div>
+            <div class="location-chip">
+              <span class="location-pin">⌖</span>
+              <div>
+                <b id="mapLocation">PALLET TOWN</b
+                ><small id="mapRegion">YOUR HOME · 2F</small>
+              </div>
+            </div>
+            <button
+              class="time-chip"
+              id="timeBtn"
+              aria-label="Toggle day or night"
+            >
+              <span>☀</span> MORNING <i></i>
+            </button>
+            <div class="world-message" id="worldMessage">
+              A soft morning light. A familiar room. A new beginning.
+            </div>
+            <button class="interact-hint" id="interactBtn">
+              <kbd>E</kbd> Interact
+            </button>
+            <div
+              id="storyDialog"
+              class="story-dialog hidden"
+              role="dialog"
+              aria-label="Story dialogue"
+              aria-live="polite"
+            ></div>
+            <div id="areaNotice" class="area-notice hidden"></div>
+          </div>
+          <div class="screen-bottom">
+            <div>
+              <span class="keygroup"
+                ><kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd></span
+              ><span>Move</span><span class="divider"></span><kbd>E</kbd
+              ><span>Talk / interact</span><span class="divider"></span
+              ><kbd>Esc</kbd><span>Menu</span>
+            </div>
+            <button class="textbtn" id="soundBtn">♫ Sound off</button>
+          </div>
+          <div class="touch-controls">
+            <div class="dpad">
+              <button data-dir="up" aria-label="Move up">▲</button
+              ><button data-dir="left" aria-label="Move left">◀</button
+              ><button data-dir="down" aria-label="Move down">▼</button
+              ><button data-dir="right" aria-label="Move right">▶</button>
+            </div>
+            <button id="touchA">A <small>INTERACT</small></button
+            ><button id="touchB">B <small>MENU</small></button>
+          </div>
+          <div class="journey-note">
+            <span class="note-icon">✦</span>
+            <div>
+              <b id="sceneNote"
+                >Small beginnings. Extraordinary possibilities.</b
+              >
+              <p id="sceneNoteText">
+                Take your time. The world will still be there when you’re ready.
+              </p>
+            </div>
+            <button class="textbtn" id="mapBtn">Explore Kanto ↗</button>
+          </div>
+        </section>
+        <aside>
+          <section class="panel quest-panel">
+            <div class="eyebrow">
+              <span class="journal-symbol">▤</span> ADVENTURE JOURNAL
+              <span class="chapter-no">01</span>
+            </div>
+            <h2 id="questTitle">A morning like no other.</h2>
+            <p id="questText">
+              Before the tall grass, before the badges, there was a little house
+              in Pallet Town.
+            </p>
+            <div class="quest-step">
+              <span id="questIcon">◇</span>
+              <div>
+                <b id="questAction">Begin your story</b
+                ><small id="questDetail">Your home · Pallet Town</small>
+              </div>
+              <span>→</span>
+            </div>
+          </section>
+          <section class="panel team-panel">
+            <div class="panel-heading">
+              <h2>Your companions</h2>
+              <button class="textbtn" id="partyBtn">Manage ↗</button>
+            </div>
+            <div id="partyList"></div>
+            <div class="team-footer">
+              <span id="partyCount">0 / 6 Pokémon</span
+              ><button class="textbtn" id="boxBtn">Storage ↗</button>
+            </div>
+          </section>
+          <section class="panel badge-panel">
+            <div class="panel-heading">
+              <h2>A dream worth chasing</h2>
+              <span id="badgeCount">0 / 8</span>
+            </div>
+            <div class="badges" id="badges"></div>
+            <p>The road to the Pokémon League.</p>
+          </section>
+          <button id="rewardsBtn" class="bag-button">
+            <span>✦</span>
+            <div>
+              <b>Packs & rewards</b><small>Guardian challenges · Sandbox</small>
+            </div>
+            <span>↗</span></button
+          ><button class="bag-button" id="bagBtn">
+            <span>▣</span>
+            <div>
+              <b>Your backpack</b
+              ><small id="bagCount">Ready for what comes next.</small>
+            </div>
+            <span>↗</span>
+          </button>
+        </aside>
+      </div>
+      <footer>
+        <span
+          ><span class="red-dot"></span> ONE TRAINER. A HUNDRED AND FIFTY-ONE
+          POSSIBILITIES.</span
+        ><span
+          >Unofficial fan game · Pokémon © Nintendo / Creatures / GAME
+          FREAK</span
+        >
+      </footer>
+    </main>
+    <div id="modalRoot"></div>
+    <div id="toast" role="status"></div>
+    <script type="module" src="app.mjs"></script>
+  </body>
+</html>

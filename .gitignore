@@ -1,0 +1,14 @@
+src/*.csv
+*.tar.gz
+*.zip
+
+src/art/
+
+dist/qa/
+
+# Local reward accounts, databases and partner credentials must never be committed.
+.data/
+.env
+.env.*
+!.env.example
+node_modules/

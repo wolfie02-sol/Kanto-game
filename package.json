@@ -1,0 +1,22 @@
+{
+  "name": "kanto-game",
+  "version": "2.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node tests/battle.test.mjs && node tests/story.test.mjs && node tests/audit-regressions.test.mjs && node --test tests/rewards.test.mjs && node tests/rewards-http.test.mjs && node tests/server-smoke.test.mjs",
+    "build": "node scripts/check.mjs",
+    "prepare-data": "python3 src/prepare_data.py",
+    "start": "node --env-file-if-exists=.env server/index.mjs",
+    "audit:campaign": "node scripts/audit-campaign.mjs",
+    "start:static": "node scripts/serve.mjs",
+    "format": "prettier --write dist/*.{mjs,css,html} server config scripts tests docs/*.md README.md",
+    "dev": "node --env-file-if-exists=.env server/index.mjs"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "devDependencies": {
+    "prettier": "3.9.10"
+  }
+}

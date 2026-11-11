@@ -1,0 +1,220 @@
+#rewardsDialog {
+  width: min(840px, 94vw);
+  max-height: 90vh;
+  border: 1px solid #ccc9ba;
+  border-radius: 20px;
+  padding: 28px;
+  color: #263d38;
+  background: #faf9f1;
+  overflow: auto;
+  box-shadow: 0 30px 100px #1238;
+}
+#rewardsDialog::backdrop {
+  background: #172f2b99;
+  backdrop-filter: blur(5px);
+}
+.reward-heading,
+.reward-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  align-items: center;
+}
+.reward-heading h2 {
+  margin: 8px 0;
+}
+.reward-heading button {
+  font-size: 26px;
+}
+.reward-mode {
+  background: #fff0c0;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+.reward-section {
+  border-top: 1px solid #d9ded0;
+  margin-top: 22px;
+  padding-top: 16px;
+}
+.reward-section p {
+  line-height: 1.6;
+}
+.reward-section button {
+  margin: 6px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #b5c9b7;
+  background: #eff5eb;
+  color: #263d38;
+  cursor: pointer;
+}
+.reward-section button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.reward-section .primary {
+  background: #315d49;
+  color: white;
+}
+.reward-packs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+}
+.reward-pack {
+  background: linear-gradient(140deg, #214b40, #467e5c);
+  color: #fff;
+  border-radius: 12px;
+  text-align: center;
+  padding: 22px 12px;
+  border-top: 7px dashed #abcab0;
+}
+.reward-pack.summit {
+  background: linear-gradient(140deg, #344266, #6f73a1);
+}
+.reward-pack.champion {
+  background: linear-gradient(140deg, #715931, #bb9752);
+}
+.reward-pack > span {
+  font-size: 36px;
+}
+.reward-pack small {
+  display: block;
+  line-height: 1.8;
+}
+.reward-pack h3 {
+  text-transform: capitalize;
+}
+.pack-reveal {
+  margin-top: 20px;
+  background: #e0eddb;
+  text-align: center;
+  padding: 25px;
+  border-radius: 12px;
+}
+.pack-reveal b {
+  font-size: 24px;
+}
+.ripping .pack-reveal {
+  animation: rewardReveal 0.65s ease-out;
+}
+.reward-claim {
+  padding: 14px;
+  background: #edf0e5;
+  border-radius: 8px;
+  margin: 10px 0;
+}
+.reward-claim small {
+  display: block;
+  margin-top: 7px;
+}
+.reward-battle {
+  display: flex;
+  justify-content: space-around;
+  background: url("assets/scenery/battle-meadow.png") center/cover;
+  border-radius: 12px;
+  padding: 20px;
+}
+.reward-battle > div {
+  display: grid;
+  text-align: center;
+  background: #ffffffb8;
+  padding: 12px;
+  border-radius: 10px;
+}
+.reward-battle img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+.reward-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+@keyframes rewardReveal {
+  from {
+    transform: translateY(15px) scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ripping .pack-reveal {
+    animation: none;
+  }
+}
+@media (max-width: 500px) {
+  #rewardsDialog {
+    padding: 16px;
+  }
+  .reward-summary {
+    display: block;
+  }
+  .reward-battle img {
+    width: 80px;
+    height: 80px;
+  }
+}
+/* Cosmetic tear strip: server settlement has already completed before this runs. */
+.pack-reveal {
+  position: relative;
+  overflow: hidden;
+}
+.ripping .pack-reveal::before {
+  content: "✦ KANTO REWARD PACK";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(125deg, #214b40, #7eab68);
+  border-top: 8px dashed #dcdfb1;
+  color: white;
+  letter-spacing: 3px;
+  font-weight: bold;
+  animation: tearPack 0.9s ease-in forwards;
+  pointer-events: none;
+}
+@keyframes tearPack {
+  0% {
+    transform: none;
+    opacity: 1;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+  55% {
+    transform: rotate(-4deg);
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% 60%,
+      80% 53%,
+      60% 58%,
+      40% 49%,
+      20% 59%,
+      0 50%
+    );
+  }
+  100% {
+    transform: translate(30%, -130%) rotate(18deg);
+    opacity: 0;
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% 60%,
+      80% 53%,
+      60% 58%,
+      40% 49%,
+      20% 59%,
+      0 50%
+    );
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ripping .pack-reveal::before {
+    display: none;
+  }
+}

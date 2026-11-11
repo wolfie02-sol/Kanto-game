@@ -1,0 +1,2525 @@
+{
+  "kind": "deterministic-mixed-team-engine-simulation",
+  "runs": [
+    {
+      "starter": "Bulbasaur",
+      "seed": 151,
+      "completed": true,
+      "battles": 1908,
+      "wildBattles": 1876,
+      "turns": 11501,
+      "defeats": 4,
+      "healingVisits": 1908,
+      "stalls": 0,
+      "captureAttempts": 9,
+      "captures": [
+        {
+          "id": 25,
+          "name": "Pikachu",
+          "level": 7,
+          "zone": 3
+        },
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level": 11,
+          "zone": 4
+        },
+        {
+          "id": 63,
+          "name": "Abra",
+          "level": 17,
+          "zone": 6
+        },
+        {
+          "id": 92,
+          "name": "Gastly",
+          "level": 22,
+          "zone": 8
+        },
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level": 54,
+          "zone": 14
+        }
+      ],
+      "areas": [
+        "Pallet Town",
+        "Route 1",
+        "Viridian City",
+        "Viridian Forest",
+        "Pewter City",
+        "Mt. Moon",
+        "Cerulean City",
+        "Vermilion City",
+        "Lavender Town",
+        "Celadon City",
+        "Fuchsia City",
+        "Saffron City",
+        "Cinnabar Island",
+        "Viridian Heights",
+        "Indigo Plateau"
+      ],
+      "bosses": [
+        {
+          "name": "Brock",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 40,
+          "levels": [
+            17,
+            12,
+            12
+          ]
+        },
+        {
+          "name": "Misty",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 103,
+          "levels": [
+            20,
+            24,
+            19,
+            19
+          ]
+        },
+        {
+          "name": "Lt. Surge",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 36,
+          "levels": [
+            23,
+            24,
+            22,
+            22
+          ]
+        },
+        {
+          "name": "Erika",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 89,
+          "levels": [
+            28,
+            29,
+            27,
+            27,
+            29
+          ]
+        },
+        {
+          "name": "Koga",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 298,
+          "levels": [
+            45,
+            41,
+            41,
+            41,
+            41
+          ]
+        },
+        {
+          "name": "Sabrina",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 0,
+          "levels": [
+            45,
+            41,
+            41,
+            42,
+            41
+          ]
+        },
+        {
+          "name": "Blaine",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 142,
+          "levels": [
+            51,
+            45,
+            45,
+            45,
+            45
+          ]
+        },
+        {
+          "name": "Giovanni",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 162,
+          "levels": [
+            60,
+            48,
+            48,
+            48,
+            52
+          ]
+        },
+        {
+          "name": "Lorelei",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 462,
+          "levels": [
+            74,
+            54,
+            54,
+            70,
+            54,
+            54
+          ]
+        },
+        {
+          "name": "Bruno",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 114,
+          "levels": [
+            77,
+            56,
+            56,
+            71,
+            56,
+            56
+          ]
+        },
+        {
+          "name": "Agatha",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 113,
+          "levels": [
+            72,
+            80,
+            58,
+            58,
+            58,
+            58
+          ]
+        },
+        {
+          "name": "Lance",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 126,
+          "levels": [
+            83,
+            60,
+            73,
+            60,
+            60,
+            60
+          ]
+        },
+        {
+          "name": "Champion Blue",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 191,
+          "levels": [
+            87,
+            63,
+            74,
+            63,
+            63,
+            63
+          ]
+        }
+      ],
+      "roundTrips": 29,
+      "party": [
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level": 87
+        },
+        {
+          "id": 26,
+          "name": "Raichu",
+          "level": 63
+        },
+        {
+          "id": 76,
+          "name": "Golem",
+          "level": 74
+        },
+        {
+          "id": 65,
+          "name": "Alakazam",
+          "level": 63
+        },
+        {
+          "id": 3,
+          "name": "Venusaur",
+          "level": 63
+        },
+        {
+          "id": 94,
+          "name": "Gengar",
+          "level": 63
+        }
+      ],
+      "badges": 8,
+      "playTimeHoursModel": {
+        "fast": 13.536805555555556,
+        "relaxed": 31.31361111111111
+      },
+      "assumptions": [
+        "Engine simulation, not an interactive browser playthrough.",
+        "All experience earned from engine battles, no XP/level injection.",
+        "Catches five companions only from legal local encounter tables.",
+        "Money spent on balls and 2100-cost stone/trade evolutions.",
+        "Damage-oriented AI; free Center healing between battles as allowed by the app.",
+        "Trains every party member to boss level minus two, then adapts on defeat.",
+        "Travel, dialogue, optional exploration and reading pace are only modeled in the time range."
+      ]
+    },
+    {
+      "starter": "Bulbasaur",
+      "seed": 2026,
+      "completed": true,
+      "battles": 1847,
+      "wildBattles": 1813,
+      "turns": 11666,
+      "defeats": 5,
+      "healingVisits": 1847,
+      "stalls": 0,
+      "captureAttempts": 11,
+      "captures": [
+        {
+          "id": 25,
+          "name": "Pikachu",
+          "level": 5,
+          "zone": 3
+        },
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level": 10,
+          "zone": 4
+        },
+        {
+          "id": 63,
+          "name": "Abra",
+          "level": 15,
+          "zone": 6
+        },
+        {
+          "id": 92,
+          "name": "Gastly",
+          "level": 23,
+          "zone": 8
+        },
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level": 48,
+          "zone": 14
+        }
+      ],
+      "areas": [
+        "Pallet Town",
+        "Route 1",
+        "Viridian City",
+        "Viridian Forest",
+        "Pewter City",
+        "Mt. Moon",
+        "Cerulean City",
+        "Vermilion City",
+        "Lavender Town",
+        "Celadon City",
+        "Fuchsia City",
+        "Saffron City",
+        "Cinnabar Island",
+        "Viridian Heights",
+        "Indigo Plateau"
+      ],
+      "bosses": [
+        {
+          "name": "Brock",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 49,
+          "levels": [
+            17,
+            12,
+            12
+          ]
+        },
+        {
+          "name": "Misty",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 98,
+          "levels": [
+            20,
+            23,
+            19,
+            19
+          ]
+        },
+        {
+          "name": "Lt. Surge",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 33,
+          "levels": [
+            23,
+            24,
+            22,
+            22
+          ]
+        },
+        {
+          "name": "Erika",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 90,
+          "levels": [
+            28,
+            27,
+            27,
+            27,
+            30
+          ]
+        },
+        {
+          "name": "Koga",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 300,
+          "levels": [
+            44,
+            41,
+            41,
+            41,
+            41
+          ]
+        },
+        {
+          "name": "Sabrina",
+          "outcome": "won",
+          "attempts": 3,
+          "trainingBattles": 53,
+          "levels": [
+            47,
+            43,
+            43,
+            43,
+            43
+          ]
+        },
+        {
+          "name": "Blaine",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 63,
+          "levels": [
+            50,
+            45,
+            45,
+            45,
+            45
+          ]
+        },
+        {
+          "name": "Giovanni",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 139,
+          "levels": [
+            58,
+            48,
+            48,
+            48,
+            51
+          ]
+        },
+        {
+          "name": "Lorelei",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 470,
+          "levels": [
+            72,
+            54,
+            68,
+            54,
+            54,
+            54
+          ]
+        },
+        {
+          "name": "Bruno",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 118,
+          "levels": [
+            75,
+            56,
+            69,
+            56,
+            56,
+            56
+          ]
+        },
+        {
+          "name": "Agatha",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 136,
+          "levels": [
+            71,
+            79,
+            58,
+            58,
+            58,
+            58
+          ]
+        },
+        {
+          "name": "Lance",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 107,
+          "levels": [
+            82,
+            60,
+            71,
+            60,
+            60,
+            60
+          ]
+        },
+        {
+          "name": "Champion Blue",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 157,
+          "levels": [
+            84,
+            63,
+            72,
+            63,
+            63,
+            63
+          ]
+        }
+      ],
+      "roundTrips": 29,
+      "party": [
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level": 84
+        },
+        {
+          "id": 94,
+          "name": "Gengar",
+          "level": 63
+        },
+        {
+          "id": 76,
+          "name": "Golem",
+          "level": 72
+        },
+        {
+          "id": 26,
+          "name": "Raichu",
+          "level": 63
+        },
+        {
+          "id": 3,
+          "name": "Venusaur",
+          "level": 63
+        },
+        {
+          "id": 65,
+          "name": "Alakazam",
+          "level": 63
+        }
+      ],
+      "badges": 8,
+      "playTimeHoursModel": {
+        "fast": 13.481944444444444,
+        "relaxed": 31.06833333333333
+      },
+      "assumptions": [
+        "Engine simulation, not an interactive browser playthrough.",
+        "All experience earned from engine battles, no XP/level injection.",
+        "Catches five companions only from legal local encounter tables.",
+        "Money spent on balls and 2100-cost stone/trade evolutions.",
+        "Damage-oriented AI; free Center healing between battles as allowed by the app.",
+        "Trains every party member to boss level minus two, then adapts on defeat.",
+        "Travel, dialogue, optional exploration and reading pace are only modeled in the time range."
+      ]
+    },
+    {
+      "starter": "Bulbasaur",
+      "seed": 8675309,
+      "completed": true,
+      "battles": 1945,
+      "wildBattles": 1910,
+      "turns": 11650,
+      "defeats": 12,
+      "healingVisits": 1945,
+      "stalls": 0,
+      "captureAttempts": 17,
+      "captures": [
+        {
+          "id": 25,
+          "name": "Pikachu",
+          "level": 7,
+          "zone": 3
+        },
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level": 9,
+          "zone": 4
+        },
+        {
+          "id": 63,
+          "name": "Abra",
+          "level": 18,
+          "zone": 6
+        },
+        {
+          "id": 92,
+          "name": "Gastly",
+          "level": 23,
+          "zone": 8
+        },
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level": 51,
+          "zone": 14
+        }
+      ],
+      "areas": [
+        "Pallet Town",
+        "Route 1",
+        "Viridian City",
+        "Viridian Forest",
+        "Pewter City",
+        "Mt. Moon",
+        "Cerulean City",
+        "Vermilion City",
+        "Lavender Town",
+        "Celadon City",
+        "Fuchsia City",
+        "Saffron City",
+        "Cinnabar Island",
+        "Viridian Heights",
+        "Indigo Plateau"
+      ],
+      "bosses": [
+        {
+          "name": "Brock",
+          "outcome": "won",
+          "attempts": 2,
+          "trainingBattles": 34,
+          "levels": [
+            14,
+            13,
+            13
+          ]
+        },
+        {
+          "name": "Misty",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 94,
+          "levels": [
+            20,
+            20,
+            22,
+            19
+          ]
+        },
+        {
+          "name": "Lt. Surge",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 34,
+          "levels": [
+            23,
+            22,
+            23,
+            22
+          ]
+        },
+        {
+          "name": "Erika",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 78,
+          "levels": [
+            28,
+            27,
+            27,
+            27,
+            29
+          ]
+        },
+        {
+          "name": "Koga",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 294,
+          "levels": [
+            43,
+            41,
+            41,
+            41,
+            41
+          ]
+        },
+        {
+          "name": "Sabrina",
+          "outcome": "won",
+          "attempts": 2,
+          "trainingBattles": 22,
+          "levels": [
+            45,
+            42,
+            42,
+            42,
+            42
+          ]
+        },
+        {
+          "name": "Blaine",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 116,
+          "levels": [
+            50,
+            45,
+            45,
+            45,
+            45
+          ]
+        },
+        {
+          "name": "Giovanni",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 190,
+          "levels": [
+            61,
+            48,
+            48,
+            52,
+            48
+          ]
+        },
+        {
+          "name": "Lorelei",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 438,
+          "levels": [
+            73,
+            54,
+            69,
+            54,
+            54,
+            54
+          ]
+        },
+        {
+          "name": "Bruno",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 148,
+          "levels": [
+            78,
+            56,
+            71,
+            56,
+            56,
+            56
+          ]
+        },
+        {
+          "name": "Agatha",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 132,
+          "levels": [
+            72,
+            81,
+            58,
+            58,
+            58,
+            58
+          ]
+        },
+        {
+          "name": "Lance",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 129,
+          "levels": [
+            84,
+            60,
+            73,
+            60,
+            60,
+            60
+          ]
+        },
+        {
+          "name": "Champion Blue",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 189,
+          "levels": [
+            88,
+            63,
+            74,
+            63,
+            63,
+            63
+          ]
+        }
+      ],
+      "roundTrips": 29,
+      "party": [
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level": 88
+        },
+        {
+          "id": 3,
+          "name": "Venusaur",
+          "level": 63
+        },
+        {
+          "id": 76,
+          "name": "Golem",
+          "level": 74
+        },
+        {
+          "id": 26,
+          "name": "Raichu",
+          "level": 63
+        },
+        {
+          "id": 94,
+          "name": "Gengar",
+          "level": 63
+        },
+        {
+          "id": 65,
+          "name": "Alakazam",
+          "level": 63
+        }
+      ],
+      "badges": 8,
+      "playTimeHoursModel": {
+        "fast": 13.743055555555555,
+        "relaxed": 31.808333333333334
+      },
+      "assumptions": [
+        "Engine simulation, not an interactive browser playthrough.",
+        "All experience earned from engine battles, no XP/level injection.",
+        "Catches five companions only from legal local encounter tables.",
+        "Money spent on balls and 2100-cost stone/trade evolutions.",
+        "Damage-oriented AI; free Center healing between battles as allowed by the app.",
+        "Trains every party member to boss level minus two, then adapts on defeat.",
+        "Travel, dialogue, optional exploration and reading pace are only modeled in the time range."
+      ]
+    },
+    {
+      "starter": "Charmander",
+      "seed": 151,
+      "completed": true,
+      "battles": 2126,
+      "wildBattles": 2092,
+      "turns": 12033,
+      "defeats": 8,
+      "healingVisits": 2126,
+      "stalls": 0,
+      "captureAttempts": 7,
+      "captures": [
+        {
+          "id": 25,
+          "name": "Pikachu",
+          "level": 4,
+          "zone": 3
+        },
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level": 12,
+          "zone": 4
+        },
+        {
+          "id": 63,
+          "name": "Abra",
+          "level": 14,
+          "zone": 6
+        },
+        {
+          "id": 92,
+          "name": "Gastly",
+          "level": 27,
+          "zone": 8
+        },
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level": 53,
+          "zone": 14
+        }
+      ],
+      "areas": [
+        "Pallet Town",
+        "Route 1",
+        "Viridian City",
+        "Viridian Forest",
+        "Pewter City",
+        "Mt. Moon",
+        "Cerulean City",
+        "Vermilion City",
+        "Lavender Town",
+        "Celadon City",
+        "Fuchsia City",
+        "Saffron City",
+        "Cinnabar Island",
+        "Viridian Heights",
+        "Indigo Plateau"
+      ],
+      "bosses": [
+        {
+          "name": "Brock",
+          "outcome": "won",
+          "attempts": 2,
+          "trainingBattles": 34,
+          "levels": [
+            14,
+            13,
+            13
+          ]
+        },
+        {
+          "name": "Misty",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 124,
+          "levels": [
+            20,
+            24,
+            19,
+            19
+          ]
+        },
+        {
+          "name": "Lt. Surge",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 61,
+          "levels": [
+            29,
+            22,
+            22,
+            22
+          ]
+        },
+        {
+          "name": "Erika",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 85,
+          "levels": [
+            28,
+            32,
+            27,
+            27,
+            32
+          ]
+        },
+        {
+          "name": "Koga",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 305,
+          "levels": [
+            46,
+            41,
+            41,
+            41,
+            41
+          ]
+        },
+        {
+          "name": "Sabrina",
+          "outcome": "won",
+          "attempts": 2,
+          "trainingBattles": 27,
+          "levels": [
+            48,
+            42,
+            42,
+            42,
+            42
+          ]
+        },
+        {
+          "name": "Blaine",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 104,
+          "levels": [
+            51,
+            45,
+            45,
+            45,
+            45
+          ]
+        },
+        {
+          "name": "Giovanni",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 129,
+          "levels": [
+            59,
+            48,
+            48,
+            48,
+            48
+          ]
+        },
+        {
+          "name": "Lorelei",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 604,
+          "levels": [
+            79,
+            54,
+            73,
+            54,
+            54,
+            54
+          ]
+        },
+        {
+          "name": "Bruno",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 164,
+          "levels": [
+            83,
+            56,
+            75,
+            56,
+            56,
+            56
+          ]
+        },
+        {
+          "name": "Agatha",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 156,
+          "levels": [
+            77,
+            87,
+            58,
+            58,
+            58,
+            58
+          ]
+        },
+        {
+          "name": "Lance",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 136,
+          "levels": [
+            90,
+            60,
+            78,
+            60,
+            60,
+            60
+          ]
+        },
+        {
+          "name": "Champion Blue",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 163,
+          "levels": [
+            92,
+            63,
+            79,
+            63,
+            63,
+            63
+          ]
+        }
+      ],
+      "roundTrips": 29,
+      "party": [
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level": 92
+        },
+        {
+          "id": 94,
+          "name": "Gengar",
+          "level": 63
+        },
+        {
+          "id": 76,
+          "name": "Golem",
+          "level": 79
+        },
+        {
+          "id": 6,
+          "name": "Charizard",
+          "level": 63
+        },
+        {
+          "id": 65,
+          "name": "Alakazam",
+          "level": 63
+        },
+        {
+          "id": 26,
+          "name": "Raichu",
+          "level": 63
+        }
+      ],
+      "badges": 8,
+      "playTimeHoursModel": {
+        "fast": 14.511805555555556,
+        "relaxed": 33.74805555555555
+      },
+      "assumptions": [
+        "Engine simulation, not an interactive browser playthrough.",
+        "All experience earned from engine battles, no XP/level injection.",
+        "Catches five companions only from legal local encounter tables.",
+        "Money spent on balls and 2100-cost stone/trade evolutions.",
+        "Damage-oriented AI; free Center healing between battles as allowed by the app.",
+        "Trains every party member to boss level minus two, then adapts on defeat.",
+        "Travel, dialogue, optional exploration and reading pace are only modeled in the time range."
+      ]
+    },
+    {
+      "starter": "Charmander",
+      "seed": 2026,
+      "completed": true,
+      "battles": 2075,
+      "wildBattles": 2041,
+      "turns": 11652,
+      "defeats": 8,
+      "healingVisits": 2075,
+      "stalls": 0,
+      "captureAttempts": 7,
+      "captures": [
+        {
+          "id": 25,
+          "name": "Pikachu",
+          "level": 6,
+          "zone": 3
+        },
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level": 10,
+          "zone": 4
+        },
+        {
+          "id": 63,
+          "name": "Abra",
+          "level": 14,
+          "zone": 6
+        },
+        {
+          "id": 92,
+          "name": "Gastly",
+          "level": 27,
+          "zone": 8
+        },
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level": 57,
+          "zone": 14
+        }
+      ],
+      "areas": [
+        "Pallet Town",
+        "Route 1",
+        "Viridian City",
+        "Viridian Forest",
+        "Pewter City",
+        "Mt. Moon",
+        "Cerulean City",
+        "Vermilion City",
+        "Lavender Town",
+        "Celadon City",
+        "Fuchsia City",
+        "Saffron City",
+        "Cinnabar Island",
+        "Viridian Heights",
+        "Indigo Plateau"
+      ],
+      "bosses": [
+        {
+          "name": "Brock",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 36,
+          "levels": [
+            15,
+            12,
+            12
+          ]
+        },
+        {
+          "name": "Misty",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 103,
+          "levels": [
+            20,
+            23,
+            19,
+            19
+          ]
+        },
+        {
+          "name": "Lt. Surge",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 44,
+          "levels": [
+            23,
+            25,
+            22,
+            22
+          ]
+        },
+        {
+          "name": "Erika",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 75,
+          "levels": [
+            28,
+            27,
+            28,
+            27,
+            31
+          ]
+        },
+        {
+          "name": "Koga",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 285,
+          "levels": [
+            43,
+            41,
+            41,
+            41,
+            41
+          ]
+        },
+        {
+          "name": "Sabrina",
+          "outcome": "won",
+          "attempts": 3,
+          "trainingBattles": 61,
+          "levels": [
+            47,
+            43,
+            43,
+            43,
+            43
+          ]
+        },
+        {
+          "name": "Blaine",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 62,
+          "levels": [
+            50,
+            45,
+            45,
+            45,
+            45
+          ]
+        },
+        {
+          "name": "Giovanni",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 150,
+          "levels": [
+            60,
+            48,
+            49,
+            48,
+            48
+          ]
+        },
+        {
+          "name": "Lorelei",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 659,
+          "levels": [
+            83,
+            74,
+            54,
+            54,
+            54,
+            54
+          ]
+        },
+        {
+          "name": "Bruno",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 153,
+          "levels": [
+            87,
+            76,
+            56,
+            56,
+            56,
+            56
+          ]
+        },
+        {
+          "name": "Agatha",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 124,
+          "levels": [
+            77,
+            58,
+            89,
+            58,
+            58,
+            58
+          ]
+        },
+        {
+          "name": "Lance",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 127,
+          "levels": [
+            91,
+            79,
+            60,
+            60,
+            60,
+            60
+          ]
+        },
+        {
+          "name": "Champion Blue",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 162,
+          "levels": [
+            93,
+            79,
+            63,
+            63,
+            63,
+            63
+          ]
+        }
+      ],
+      "roundTrips": 29,
+      "party": [
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level": 93
+        },
+        {
+          "id": 76,
+          "name": "Golem",
+          "level": 79
+        },
+        {
+          "id": 65,
+          "name": "Alakazam",
+          "level": 63
+        },
+        {
+          "id": 26,
+          "name": "Raichu",
+          "level": 63
+        },
+        {
+          "id": 6,
+          "name": "Charizard",
+          "level": 63
+        },
+        {
+          "id": 94,
+          "name": "Gengar",
+          "level": 63
+        }
+      ],
+      "badges": 8,
+      "playTimeHoursModel": {
+        "fast": 14.105555555555556,
+        "relaxed": 32.82222222222222
+      },
+      "assumptions": [
+        "Engine simulation, not an interactive browser playthrough.",
+        "All experience earned from engine battles, no XP/level injection.",
+        "Catches five companions only from legal local encounter tables.",
+        "Money spent on balls and 2100-cost stone/trade evolutions.",
+        "Damage-oriented AI; free Center healing between battles as allowed by the app.",
+        "Trains every party member to boss level minus two, then adapts on defeat.",
+        "Travel, dialogue, optional exploration and reading pace are only modeled in the time range."
+      ]
+    },
+    {
+      "starter": "Charmander",
+      "seed": 8675309,
+      "completed": true,
+      "battles": 2007,
+      "wildBattles": 1974,
+      "turns": 11805,
+      "defeats": 6,
+      "healingVisits": 2007,
+      "stalls": 0,
+      "captureAttempts": 5,
+      "captures": [
+        {
+          "id": 25,
+          "name": "Pikachu",
+          "level": 7,
+          "zone": 3
+        },
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level": 8,
+          "zone": 4
+        },
+        {
+          "id": 63,
+          "name": "Abra",
+          "level": 17,
+          "zone": 6
+        },
+        {
+          "id": 92,
+          "name": "Gastly",
+          "level": 25,
+          "zone": 8
+        },
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level": 51,
+          "zone": 14
+        }
+      ],
+      "areas": [
+        "Pallet Town",
+        "Route 1",
+        "Viridian City",
+        "Viridian Forest",
+        "Pewter City",
+        "Mt. Moon",
+        "Cerulean City",
+        "Vermilion City",
+        "Lavender Town",
+        "Celadon City",
+        "Fuchsia City",
+        "Saffron City",
+        "Cinnabar Island",
+        "Viridian Heights",
+        "Indigo Plateau"
+      ],
+      "bosses": [
+        {
+          "name": "Brock",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 24,
+          "levels": [
+            12,
+            12,
+            12
+          ]
+        },
+        {
+          "name": "Misty",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 80,
+          "levels": [
+            20,
+            19,
+            19,
+            19
+          ]
+        },
+        {
+          "name": "Lt. Surge",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 50,
+          "levels": [
+            23,
+            22,
+            22,
+            22
+          ]
+        },
+        {
+          "name": "Erika",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 69,
+          "levels": [
+            28,
+            27,
+            27,
+            27,
+            28
+          ]
+        },
+        {
+          "name": "Koga",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 306,
+          "levels": [
+            43,
+            41,
+            41,
+            41,
+            41
+          ]
+        },
+        {
+          "name": "Sabrina",
+          "outcome": "won",
+          "attempts": 2,
+          "trainingBattles": 28,
+          "levels": [
+            45,
+            42,
+            43,
+            42,
+            42
+          ]
+        },
+        {
+          "name": "Blaine",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 90,
+          "levels": [
+            47,
+            45,
+            45,
+            45,
+            45
+          ]
+        },
+        {
+          "name": "Giovanni",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 164,
+          "levels": [
+            59,
+            48,
+            49,
+            48,
+            48
+          ]
+        },
+        {
+          "name": "Lorelei",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 611,
+          "levels": [
+            79,
+            71,
+            54,
+            54,
+            54,
+            54
+          ]
+        },
+        {
+          "name": "Bruno",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 131,
+          "levels": [
+            83,
+            73,
+            56,
+            56,
+            56,
+            56
+          ]
+        },
+        {
+          "name": "Agatha",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 126,
+          "levels": [
+            74,
+            58,
+            85,
+            58,
+            58,
+            58
+          ]
+        },
+        {
+          "name": "Lance",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 140,
+          "levels": [
+            88,
+            75,
+            60,
+            60,
+            60,
+            60
+          ]
+        },
+        {
+          "name": "Champion Blue",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 155,
+          "levels": [
+            90,
+            76,
+            63,
+            63,
+            63,
+            63
+          ]
+        }
+      ],
+      "roundTrips": 29,
+      "party": [
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level": 90
+        },
+        {
+          "id": 76,
+          "name": "Golem",
+          "level": 76
+        },
+        {
+          "id": 26,
+          "name": "Raichu",
+          "level": 63
+        },
+        {
+          "id": 94,
+          "name": "Gengar",
+          "level": 63
+        },
+        {
+          "id": 6,
+          "name": "Charizard",
+          "level": 63
+        },
+        {
+          "id": 65,
+          "name": "Alakazam",
+          "level": 63
+        }
+      ],
+      "badges": 8,
+      "playTimeHoursModel": {
+        "fast": 14.022916666666667,
+        "relaxed": 32.505833333333335
+      },
+      "assumptions": [
+        "Engine simulation, not an interactive browser playthrough.",
+        "All experience earned from engine battles, no XP/level injection.",
+        "Catches five companions only from legal local encounter tables.",
+        "Money spent on balls and 2100-cost stone/trade evolutions.",
+        "Damage-oriented AI; free Center healing between battles as allowed by the app.",
+        "Trains every party member to boss level minus two, then adapts on defeat.",
+        "Travel, dialogue, optional exploration and reading pace are only modeled in the time range."
+      ]
+    },
+    {
+      "starter": "Squirtle",
+      "seed": 151,
+      "completed": true,
+      "battles": 1823,
+      "wildBattles": 1788,
+      "turns": 10698,
+      "defeats": 8,
+      "healingVisits": 1823,
+      "stalls": 0,
+      "captureAttempts": 23,
+      "captures": [
+        {
+          "id": 25,
+          "name": "Pikachu",
+          "level": 7,
+          "zone": 3
+        },
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level": 9,
+          "zone": 4
+        },
+        {
+          "id": 63,
+          "name": "Abra",
+          "level": 16,
+          "zone": 6
+        },
+        {
+          "id": 92,
+          "name": "Gastly",
+          "level": 24,
+          "zone": 8
+        },
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level": 47,
+          "zone": 14
+        }
+      ],
+      "areas": [
+        "Pallet Town",
+        "Route 1",
+        "Viridian City",
+        "Viridian Forest",
+        "Pewter City",
+        "Mt. Moon",
+        "Cerulean City",
+        "Vermilion City",
+        "Lavender Town",
+        "Celadon City",
+        "Fuchsia City",
+        "Saffron City",
+        "Cinnabar Island",
+        "Viridian Heights",
+        "Indigo Plateau"
+      ],
+      "bosses": [
+        {
+          "name": "Brock",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 24,
+          "levels": [
+            14,
+            12,
+            12
+          ]
+        },
+        {
+          "name": "Misty",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 80,
+          "levels": [
+            20,
+            19,
+            19,
+            19
+          ]
+        },
+        {
+          "name": "Lt. Surge",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 55,
+          "levels": [
+            24,
+            22,
+            22,
+            22
+          ]
+        },
+        {
+          "name": "Erika",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 77,
+          "levels": [
+            28,
+            27,
+            27,
+            27,
+            27
+          ]
+        },
+        {
+          "name": "Koga",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 296,
+          "levels": [
+            43,
+            41,
+            41,
+            41,
+            41
+          ]
+        },
+        {
+          "name": "Sabrina",
+          "outcome": "won",
+          "attempts": 2,
+          "trainingBattles": 21,
+          "levels": [
+            43,
+            42,
+            42,
+            42,
+            42
+          ]
+        },
+        {
+          "name": "Blaine",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 103,
+          "levels": [
+            48,
+            45,
+            45,
+            45,
+            45
+          ]
+        },
+        {
+          "name": "Giovanni",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 149,
+          "levels": [
+            53,
+            55,
+            48,
+            48,
+            48
+          ]
+        },
+        {
+          "name": "Lorelei",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 455,
+          "levels": [
+            70,
+            67,
+            54,
+            54,
+            54,
+            54
+          ]
+        },
+        {
+          "name": "Bruno",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 112,
+          "levels": [
+            74,
+            68,
+            56,
+            56,
+            56,
+            56
+          ]
+        },
+        {
+          "name": "Agatha",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 110,
+          "levels": [
+            70,
+            58,
+            76,
+            58,
+            58,
+            58
+          ]
+        },
+        {
+          "name": "Lance",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 115,
+          "levels": [
+            78,
+            71,
+            60,
+            60,
+            60,
+            60
+          ]
+        },
+        {
+          "name": "Champion Blue",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 185,
+          "levels": [
+            82,
+            72,
+            63,
+            63,
+            63,
+            63
+          ]
+        }
+      ],
+      "roundTrips": 29,
+      "party": [
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level": 82
+        },
+        {
+          "id": 76,
+          "name": "Golem",
+          "level": 72
+        },
+        {
+          "id": 9,
+          "name": "Blastoise",
+          "level": 63
+        },
+        {
+          "id": 26,
+          "name": "Raichu",
+          "level": 63
+        },
+        {
+          "id": 65,
+          "name": "Alakazam",
+          "level": 63
+        },
+        {
+          "id": 94,
+          "name": "Gengar",
+          "level": 63
+        }
+      ],
+      "badges": 8,
+      "playTimeHoursModel": {
+        "fast": 12.743055555555555,
+        "relaxed": 29.537222222222223
+      },
+      "assumptions": [
+        "Engine simulation, not an interactive browser playthrough.",
+        "All experience earned from engine battles, no XP/level injection.",
+        "Catches five companions only from legal local encounter tables.",
+        "Money spent on balls and 2100-cost stone/trade evolutions.",
+        "Damage-oriented AI; free Center healing between battles as allowed by the app.",
+        "Trains every party member to boss level minus two, then adapts on defeat.",
+        "Travel, dialogue, optional exploration and reading pace are only modeled in the time range."
+      ]
+    },
+    {
+      "starter": "Squirtle",
+      "seed": 2026,
+      "completed": true,
+      "battles": 1726,
+      "wildBattles": 1687,
+      "turns": 11559,
+      "defeats": 18,
+      "healingVisits": 1726,
+      "stalls": 0,
+      "captureAttempts": 18,
+      "captures": [
+        {
+          "id": 25,
+          "name": "Pikachu",
+          "level": 6,
+          "zone": 3
+        },
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level": 10,
+          "zone": 4
+        },
+        {
+          "id": 63,
+          "name": "Abra",
+          "level": 15,
+          "zone": 6
+        },
+        {
+          "id": 92,
+          "name": "Gastly",
+          "level": 24,
+          "zone": 8
+        },
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level": 55,
+          "zone": 14
+        }
+      ],
+      "areas": [
+        "Pallet Town",
+        "Route 1",
+        "Viridian City",
+        "Viridian Forest",
+        "Pewter City",
+        "Mt. Moon",
+        "Cerulean City",
+        "Vermilion City",
+        "Lavender Town",
+        "Celadon City",
+        "Fuchsia City",
+        "Saffron City",
+        "Cinnabar Island",
+        "Viridian Heights",
+        "Indigo Plateau"
+      ],
+      "bosses": [
+        {
+          "name": "Brock",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 23,
+          "levels": [
+            15,
+            12,
+            12
+          ]
+        },
+        {
+          "name": "Misty",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 86,
+          "levels": [
+            19,
+            20,
+            19,
+            20
+          ]
+        },
+        {
+          "name": "Lt. Surge",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 50,
+          "levels": [
+            23,
+            22,
+            24,
+            22
+          ]
+        },
+        {
+          "name": "Erika",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 70,
+          "levels": [
+            28,
+            27,
+            27,
+            27,
+            29
+          ]
+        },
+        {
+          "name": "Koga",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 305,
+          "levels": [
+            42,
+            41,
+            41,
+            41,
+            41
+          ]
+        },
+        {
+          "name": "Sabrina",
+          "outcome": "won",
+          "attempts": 5,
+          "trainingBattles": 92,
+          "levels": [
+            46,
+            45,
+            45,
+            45,
+            45
+          ]
+        },
+        {
+          "name": "Blaine",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 0,
+          "levels": [
+            47,
+            45,
+            45,
+            45,
+            45
+          ]
+        },
+        {
+          "name": "Giovanni",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 145,
+          "levels": [
+            57,
+            48,
+            50,
+            48,
+            48
+          ]
+        },
+        {
+          "name": "Lorelei",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 262,
+          "levels": [
+            69,
+            54,
+            55,
+            67,
+            54,
+            54
+          ]
+        },
+        {
+          "name": "Bruno",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 96,
+          "levels": [
+            72,
+            56,
+            56,
+            68,
+            56,
+            56
+          ]
+        },
+        {
+          "name": "Agatha",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 116,
+          "levels": [
+            71,
+            74,
+            58,
+            58,
+            58,
+            58
+          ]
+        },
+        {
+          "name": "Lance",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 126,
+          "levels": [
+            78,
+            60,
+            72,
+            60,
+            60,
+            60
+          ]
+        },
+        {
+          "name": "Champion Blue",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 171,
+          "levels": [
+            81,
+            63,
+            73,
+            63,
+            63,
+            63
+          ]
+        }
+      ],
+      "roundTrips": 29,
+      "party": [
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level": 81
+        },
+        {
+          "id": 94,
+          "name": "Gengar",
+          "level": 63
+        },
+        {
+          "id": 76,
+          "name": "Golem",
+          "level": 73
+        },
+        {
+          "id": 65,
+          "name": "Alakazam",
+          "level": 63
+        },
+        {
+          "id": 9,
+          "name": "Blastoise",
+          "level": 63
+        },
+        {
+          "id": 26,
+          "name": "Raichu",
+          "level": 63
+        }
+      ],
+      "badges": 8,
+      "playTimeHoursModel": {
+        "fast": 13.071527777777778,
+        "relaxed": 29.97861111111111
+      },
+      "assumptions": [
+        "Engine simulation, not an interactive browser playthrough.",
+        "All experience earned from engine battles, no XP/level injection.",
+        "Catches five companions only from legal local encounter tables.",
+        "Money spent on balls and 2100-cost stone/trade evolutions.",
+        "Damage-oriented AI; free Center healing between battles as allowed by the app.",
+        "Trains every party member to boss level minus two, then adapts on defeat.",
+        "Travel, dialogue, optional exploration and reading pace are only modeled in the time range."
+      ]
+    },
+    {
+      "starter": "Squirtle",
+      "seed": 8675309,
+      "completed": true,
+      "battles": 1953,
+      "wildBattles": 1917,
+      "turns": 11896,
+      "defeats": 6,
+      "healingVisits": 1953,
+      "stalls": 0,
+      "captureAttempts": 13,
+      "captures": [
+        {
+          "id": 25,
+          "name": "Pikachu",
+          "level": 7,
+          "zone": 3
+        },
+        {
+          "id": 74,
+          "name": "Geodude",
+          "level": 12,
+          "zone": 4
+        },
+        {
+          "id": 63,
+          "name": "Abra",
+          "level": 17,
+          "zone": 6
+        },
+        {
+          "id": 92,
+          "name": "Gastly",
+          "level": 22,
+          "zone": 8
+        },
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level": 58,
+          "zone": 14
+        }
+      ],
+      "areas": [
+        "Pallet Town",
+        "Route 1",
+        "Viridian City",
+        "Viridian Forest",
+        "Pewter City",
+        "Mt. Moon",
+        "Cerulean City",
+        "Vermilion City",
+        "Lavender Town",
+        "Celadon City",
+        "Fuchsia City",
+        "Saffron City",
+        "Cinnabar Island",
+        "Viridian Heights",
+        "Indigo Plateau"
+      ],
+      "bosses": [
+        {
+          "name": "Brock",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 20,
+          "levels": [
+            14,
+            12,
+            12
+          ]
+        },
+        {
+          "name": "Misty",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 79,
+          "levels": [
+            20,
+            19,
+            19,
+            19
+          ]
+        },
+        {
+          "name": "Lt. Surge",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 41,
+          "levels": [
+            23,
+            22,
+            22,
+            22
+          ]
+        },
+        {
+          "name": "Erika",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 86,
+          "levels": [
+            28,
+            27,
+            29,
+            27,
+            27
+          ]
+        },
+        {
+          "name": "Koga",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 320,
+          "levels": [
+            46,
+            41,
+            41,
+            41,
+            41
+          ]
+        },
+        {
+          "name": "Sabrina",
+          "outcome": "won",
+          "attempts": 3,
+          "trainingBattles": 53,
+          "levels": [
+            48,
+            43,
+            43,
+            43,
+            43
+          ]
+        },
+        {
+          "name": "Blaine",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 59,
+          "levels": [
+            50,
+            45,
+            45,
+            45,
+            45
+          ]
+        },
+        {
+          "name": "Giovanni",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 132,
+          "levels": [
+            58,
+            48,
+            49,
+            48,
+            48
+          ]
+        },
+        {
+          "name": "Lorelei",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 555,
+          "levels": [
+            78,
+            54,
+            54,
+            72,
+            54,
+            54
+          ]
+        },
+        {
+          "name": "Bruno",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 143,
+          "levels": [
+            82,
+            56,
+            56,
+            74,
+            56,
+            56
+          ]
+        },
+        {
+          "name": "Agatha",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 133,
+          "levels": [
+            77,
+            84,
+            58,
+            58,
+            58,
+            58
+          ]
+        },
+        {
+          "name": "Lance",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 122,
+          "levels": [
+            87,
+            60,
+            78,
+            60,
+            60,
+            60
+          ]
+        },
+        {
+          "name": "Champion Blue",
+          "outcome": "won",
+          "attempts": 1,
+          "trainingBattles": 170,
+          "levels": [
+            89,
+            63,
+            79,
+            63,
+            63,
+            63
+          ]
+        }
+      ],
+      "roundTrips": 29,
+      "party": [
+        {
+          "id": 131,
+          "name": "Lapras",
+          "level": 89
+        },
+        {
+          "id": 65,
+          "name": "Alakazam",
+          "level": 63
+        },
+        {
+          "id": 76,
+          "name": "Golem",
+          "level": 79
+        },
+        {
+          "id": 94,
+          "name": "Gengar",
+          "level": 63
+        },
+        {
+          "id": 26,
+          "name": "Raichu",
+          "level": 63
+        },
+        {
+          "id": 9,
+          "name": "Blastoise",
+          "level": 63
+        }
+      ],
+      "badges": 8,
+      "playTimeHoursModel": {
+        "fast": 13.936111111111112,
+        "relaxed": 32.21222222222222
+      },
+      "assumptions": [
+        "Engine simulation, not an interactive browser playthrough.",
+        "All experience earned from engine battles, no XP/level injection.",
+        "Catches five companions only from legal local encounter tables.",
+        "Money spent on balls and 2100-cost stone/trade evolutions.",
+        "Damage-oriented AI; free Center healing between battles as allowed by the app.",
+        "Trains every party member to boss level minus two, then adapts on defeat.",
+        "Travel, dialogue, optional exploration and reading pace are only modeled in the time range."
+      ]
+    }
+  ]
+}
