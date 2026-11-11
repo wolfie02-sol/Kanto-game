@@ -490,3 +490,12 @@ select:focus-visible {
   height: 100%;
   object-fit: contain;
 }
+/* Encounters must cover the battle dialog, which lives outside the map. */
+.scene-transition.viewport-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  border-radius: 0;
+  background: #14232d;
+  pointer-events: none;
+}
