@@ -1,3 +1,4 @@
+import { createWalker } from "./locomotion.mjs";
 import {
   detailGround,
   buildingShadow,
@@ -14,9 +15,18 @@ export const TILE = 24,
   VIEW_H = 288;
 const images = {},
   cache = new Map();
-let visual = { key: "", x: 0, y: 0 },
-  lastWalk = 0,
-  lastTarget = "";
+const layouts = new Map();
+function layoutFor(key) {
+  if (!layouts.has(key))
+    layouts.set(
+      key,
+      key.startsWith("room:")
+        ? roomWorld(key.slice(5))
+        : world(Number(key.slice(5))),
+    );
+  return layouts.get(key);
+}
+const walker = createWalker();
 export async function loadCharacters() {
   let sources = Object.fromEntries(
     ["red", "leaf", "oak", "mom", "blue", "nurse"].map((key) => [
@@ -303,7 +313,7 @@ function building(c, b) {
   }
 }
 function drawOutdoorStatic(c, zone) {
-  let w = world(zone);
+  let w = layoutFor("zone:" + zone);
   ground(c, w.tiles, zone);
   detailGround(c, w, ZONES[zone]);
   for (let b of w.buildings) building(c, b);
@@ -509,7 +519,7 @@ function roomFurniture(c, d) {
   detailFurniture(c, d);
 }
 function roomStatic(c, scene) {
-  let w = roomWorld(scene);
+  let w = layoutFor("room:" + scene);
   box(c, 0, 0, 336, 288, "#344a45");
   for (let y = 2; y < 11; y++)
     for (let x = 1; x < 13; x++) {
@@ -611,12 +621,13 @@ export function drawCharacter(
   dir = "down",
   walking = false,
   tick = 0,
+  stepPhase = 0,
 ) {
   let img = images[key] || images.red;
   if (!img) return;
   let frame = dir === "up" ? 1 : dir === "left" || dir === "right" ? 2 : 0;
   if (walking) {
-    let phase = Math.floor(tick / 140) % 2;
+    const phase = stepPhase;
     frame =
       dir === "up"
         ? 5 + phase
@@ -679,17 +690,8 @@ export function drawScene(ctx, state, tick = 0) {
     indoor = s.scene && s.scene !== "outdoor",
     key = indoor ? "room:" + s.scene : "zone:" + s.zone,
     background = mapCanvas(key),
-    target = `${key}/${s.x}/${s.y}`;
-  if (visual.key !== key) {
-    visual = { key, x: s.x * TILE, y: s.y * TILE };
-    lastTarget = target;
-  }
-  if (target !== lastTarget) {
-    lastWalk = tick;
-    lastTarget = target;
-  }
-  visual.x += (s.x * TILE - visual.x) * 0.35;
-  visual.y += (s.y * TILE - visual.y) * 0.35;
+    layout = layoutFor(key),
+    visual = walker.update(key, s.x, s.y, tick);
   let camera = cameraFor(
     { x: visual.x / TILE, y: visual.y / TILE },
     background.width,
@@ -703,7 +705,7 @@ export function drawScene(ctx, state, tick = 0) {
   ctx.save();
   ctx.translate(-Math.round(camera.x), -Math.round(camera.y));
   ctx.drawImage(background, 0, 0);
-  let objects = indoor ? roomWorld(s.scene).objects : world(s.zone).objects;
+  const objects = layout.objects;
   let people = objects
     .filter(
       (o) => o.character || ["trainer", "guide", "rival"].includes(o.kind),
@@ -731,8 +733,9 @@ export function drawScene(ctx, state, tick = 0) {
       x,
       y,
       p.player ? s.dir : "down",
-      p.player && tick - lastWalk < 160,
+      p.player && visual.moving,
       tick,
+      visual.phase,
     );
     if (
       p.player &&
@@ -770,7 +773,7 @@ export function drawScene(ctx, state, tick = 0) {
     }
   }
   if (!indoor) {
-    let tiles = world(s.zone).tiles;
+    const tiles = layout.tiles;
     if (tiles[s.y]?.[s.x] === 2) {
       for (let i = 0; i < 4; i++)
         box(
@@ -802,7 +805,7 @@ export function drawScene(ctx, state, tick = 0) {
   if (s.timeOfDay === "night") {
     box(ctx, 0, 0, viewW, viewH, indoor ? "#273c6a30" : "#16285277");
     if (!indoor) {
-      for (let b of world(s.zone).buildings)
+      for (let b of layout.buildings)
         for (let off of [20, 63, 90]) {
           let x = b.x * 24 + off - camera.x,
             y = (b.y + b.h) * 24 - 22 - camera.y;
