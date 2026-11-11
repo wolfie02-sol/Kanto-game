@@ -1,0 +1,492 @@
+/* Shared phone/tablet layout. Keep this after rework.css. No device sniffing. */
+html {
+  scroll-padding-bottom: env(safe-area-inset-bottom);
+  -webkit-text-size-adjust: 100%;
+}
+button,
+a,
+input,
+select {
+  touch-action: manipulation;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid #b18742;
+  outline-offset: 3px;
+}
+.scene-transition {
+  position: absolute;
+  inset: 0;
+  background: #20352d;
+  opacity: 0;
+  z-index: 20;
+  pointer-events: none;
+  border-radius: inherit;
+}
+.scene-transition.battle-wipe {
+  background: linear-gradient(150deg, #223b31, #4b6654 55%, #24392f);
+}
+#screen[data-transition] {
+  pointer-events: none;
+}
+.modal,
+.story-dialog,
+#rewardsDialog {
+  overscroll-behavior: contain;
+}
+.modal {
+  scrollbar-gutter: stable;
+}
+.story-content {
+  overflow-wrap: anywhere;
+}
+.area-notice:not(.hidden) {
+  animation: notice-arrive 0.18s ease-out;
+}
+@keyframes notice-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  button {
+    transition:
+      background-color 0.12s ease,
+      border-color 0.12s ease,
+      box-shadow 0.12s ease;
+  }
+  button:active {
+    filter: brightness(0.96);
+  }
+}
+@media (max-width: 760px),
+  (pointer: coarse),
+  (max-height: 500px) and (orientation: landscape) {
+  .touch-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    padding: 12px max(4px, env(safe-area-inset-right))
+      max(14px, env(safe-area-inset-bottom)) max(4px, env(safe-area-inset-left));
+    background: #f8f6e9;
+    border-radius: 12px;
+  }
+  .touch-controls .dpad {
+    display: grid;
+    grid-template-columns: repeat(3, 48px);
+    grid-template-rows: repeat(2, 46px);
+    gap: 5px;
+    margin-right: auto;
+  }
+  .dpad button {
+    font-size: 18px;
+    min-height: 46px;
+    touch-action: none;
+    -webkit-touch-callout: none;
+  }
+  #touchA,
+  #touchB {
+    flex: 0 0 56px;
+    width: 56px;
+    height: 56px;
+    font-size: 20px;
+    touch-action: none;
+  }
+  #touchA small,
+  #touchB small {
+    font-size: 8px;
+  }
+  .close,
+  .iconbtn,
+  .navbtn,
+  .textbtn,
+  .story-next {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  input,
+  select {
+    font-size: 16px !important;
+    min-height: 44px;
+    max-width: 100%;
+  }
+  .modal button,
+  .reward-section button,
+  .reward-heading button {
+    min-height: 44px;
+  }
+}
+@media (max-width: 760px) {
+  body {
+    overflow-x: clip;
+  }
+  main {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
+  header {
+    gap: 10px;
+    padding: 0 12px;
+    height: 68px;
+  }
+  nav {
+    gap: 8px;
+  }
+  .navbtn {
+    font-size: 10px;
+  }
+  .brand {
+    flex-shrink: 0;
+  }
+  .page-heading {
+    padding: 16px 0;
+  }
+  .page-heading h1 {
+    font-size: 23px;
+  }
+  .game-column,
+  .game-layout,
+  aside,
+  .panel {
+    min-width: 0;
+  }
+  .screen {
+    height: auto !important;
+    aspect-ratio: 4/3;
+    min-height: 0;
+    max-height: none;
+  }
+  #world {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .screen-bottom > div {
+    display: none !important;
+  }
+  .screen-bottom {
+    justify-content: flex-end;
+    padding: 0;
+  }
+  .touch-controls {
+    position: sticky;
+    bottom: 0;
+    z-index: 8;
+    box-shadow: 0 -4px 18px #243e2910;
+  }
+  .story-dialog {
+    left: 9px;
+    right: 9px;
+    bottom: 12px;
+    padding: 12px 13px 8px;
+    gap: 10px;
+    min-height: 0;
+    max-height: calc(100% - 30px);
+    overflow: auto;
+  }
+  .story-dialog p {
+    font-size: 13px;
+    line-height: 1.45;
+    padding-right: 0;
+  }
+  .speaker-label {
+    font-size: 9px;
+    margin-bottom: 5px;
+  }
+  .speaker-avatar {
+    width: 32px;
+    height: 48px;
+    background-size: 247px 55px;
+  }
+  .story-next {
+    font-size: 10px;
+    margin-top: 2px;
+  }
+  .story-next kbd {
+    display: none;
+  }
+  .overlay {
+    padding: max(8px, env(safe-area-inset-top))
+      max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom))
+      max(8px, env(safe-area-inset-left));
+    align-items: center;
+    overflow: auto;
+  }
+  .modal {
+    width: 100%;
+    max-width: 100%;
+    max-height: calc(100dvh - 24px);
+    padding: 18px;
+    overflow: auto;
+    border-radius: 14px;
+  }
+  .modal h2 {
+    font-size: 22px;
+    line-height: 1.2;
+  }
+  .modal p {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .modal-head {
+    gap: 8px;
+  }
+  .title-modal {
+    padding: 18px;
+  }
+  .title-layout {
+    display: block;
+  }
+  .title-illustration {
+    display: none;
+  }
+  .title-copy {
+    padding: 0;
+  }
+  .title-copy h2 {
+    font-size: 29px;
+  }
+  .title-buttons button {
+    min-height: 48px;
+  }
+  .setup-layout {
+    gap: 12px;
+  }
+  .setup-trainer {
+    width: 74px;
+    flex-shrink: 0;
+  }
+  .setup-footer {
+    display: block;
+  }
+  .setup-footer button {
+    width: 100%;
+    margin-top: 12px;
+  }
+  .starters {
+    gap: 7px;
+  }
+  .starter {
+    padding: 12px 4px;
+    min-width: 0;
+  }
+  .starter img {
+    width: 80px;
+    max-width: 100%;
+    height: 80px;
+  }
+  .starter h3 {
+    font-size: 12px;
+  }
+  .starters .type {
+    font-size: 8px;
+    padding: 3px 4px;
+  }
+  .battle-modal {
+    padding: 10px;
+    max-height: calc(100dvh - 16px);
+  }
+  .battle-header {
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .battle-header b {
+    font-size: 12px;
+  }
+  .battle-header span {
+    font-size: 8px;
+  }
+  .battle-scene {
+    height: clamp(205px, 32dvh, 290px);
+    min-height: 0;
+  }
+  .battle-stat {
+    width: 46%;
+    padding: 8px;
+  }
+  .battle-stat.foe {
+    left: 3%;
+    top: 5%;
+  }
+  .battle-stat.ally {
+    right: 3%;
+    bottom: 6%;
+  }
+  .battle-stat h3 {
+    font-size: 11px;
+    line-height: 1.4;
+  }
+  .battle-stat h3 span {
+    font-size: 9px;
+  }
+  .battle-stat .hp-label {
+    font-size: 9px;
+  }
+  .foe-sprite,
+  .ally-sprite {
+    width: 135px;
+    height: 135px;
+    max-width: 43%;
+  }
+  .foe-sprite {
+    right: 2%;
+    top: 3%;
+  }
+  .ally-sprite {
+    left: 0;
+    bottom: -4%;
+  }
+  .battle-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .battle-log {
+    min-height: 60px;
+    max-height: 105px;
+    padding: 10px;
+    overflow: auto;
+  }
+  .battle-log p {
+    font-size: 12px;
+    margin: 3px 0;
+  }
+  .battle-actions {
+    gap: 7px;
+  }
+  .battle-actions button {
+    min-height: 56px;
+    font-size: 13px;
+    padding: 10px;
+  }
+  .battle-actions button small {
+    font-size: 10px;
+    line-height: 1.5;
+  }
+  #rewardsDialog {
+    width: calc(100vw - 16px);
+    max-width: 100%;
+    max-height: calc(100dvh - 24px);
+    padding: 16px;
+    overflow: auto;
+  }
+  .reward-actions {
+    gap: 6px;
+  }
+  .reward-actions button {
+    margin: 0;
+    font-size: 12px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .reward-summary {
+    display: grid;
+    gap: 8px;
+  }
+  .reward-packs {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+}
+@media (max-width: 360px) {
+  header .brand-sub {
+    display: none;
+  }
+  header nav {
+    gap: 3px;
+  }
+  .brand {
+    font-size: 15px;
+  }
+  .touch-controls .dpad {
+    grid-template-columns: repeat(3, 44px);
+    grid-template-rows: repeat(2, 44px);
+  }
+  #touchA,
+  #touchB {
+    width: 50px;
+    height: 50px;
+    flex-basis: 50px;
+  }
+  .touch-controls {
+    gap: 8px;
+  }
+  .modal {
+    padding: 12px;
+  }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .overlay {
+    align-items: flex-start;
+  }
+  .modal {
+    max-height: calc(100dvh - 16px);
+  }
+  .battle-modal .battle-scene {
+    height: 190px;
+  }
+  .battle-bottom {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .battle-log {
+    max-height: 150px;
+  }
+  .touch-controls {
+    position: static;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+.game-column:fullscreen {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100dvh;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
+  background: #263f36;
+  overflow: hidden;
+}
+.game-column:fullscreen .map-topline,
+.game-column:fullscreen .screen-bottom,
+.game-column:fullscreen .journey-note {
+  display: none;
+}
+.game-column:fullscreen .screen {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  aspect-ratio: auto;
+  max-height: none;
+  border-radius: 0;
+}
+.game-column:fullscreen .touch-controls {
+  position: static;
+  flex-shrink: 0;
+}
+.game-column:fullscreen #world {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
