@@ -81,3 +81,6 @@ Seven reproduced defects fixed; 36 automated checks, server smoke and syntax che
 - Shared motion module for doors/routes/stairs, story start/continue, dialogue, menus, battle entrance/exit and turn feedback. Reduced-motion and cancellation/background safeguards included.
 - Responsive phone stylesheet: larger touch targets, safe areas, scrolling menus/battles, landscape and fullscreen controls. Lost pointer capture and hidden tabs clear movement.
 - See docs/MOTION_AND_PHONES.md for timings, behavior and QA scope. Existing saved adventures and reward policy are unchanged.
+
+## Version 2.3 — collector interface and pixel detail
+Dark collector display theme, native pixel-art town panorama, cached foliage/building/interior details, phone theme and closer camera. See docs/ART_AND_THEME.md. All four phone directions are covered by an interface regression check.
