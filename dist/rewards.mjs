@@ -1,3 +1,4 @@
+import { animate } from "./motion.mjs";
 /** Rewards UI: API results are authoritative. Animation never chooses an outcome. */
 export function mountRewards({ data, canOpen }) {
   const esc = (s) =>
@@ -79,6 +80,7 @@ export function mountRewards({ data, canOpen }) {
     if (!button || working) return;
     const a = button.dataset.r;
     if (a === "close") {
+      await animate(panel, [{ opacity: 1 }, { opacity: 0 }], 100);
       panel.close();
       return;
     }
@@ -121,6 +123,12 @@ export function mountRewards({ data, canOpen }) {
     } finally {
       working = false;
       render();
+      if (["challenge", "leave", "move", "switch", "potion"].includes(a))
+        void animate(
+          panel.querySelector(".reward-battle"),
+          [{ opacity: 0.65 }, { opacity: 1 }],
+          140,
+        );
     }
   });
   document.querySelector("#rewardsBtn").addEventListener("click", async () => {
@@ -128,6 +136,14 @@ export function mountRewards({ data, canOpen }) {
     error = "";
     panel.showModal();
     render();
+    void animate(
+      panel,
+      [
+        { opacity: 0, transform: "translateY(7px)" },
+        { opacity: 1, transform: "none" },
+      ],
+      150,
+    );
     try {
       await refresh();
     } catch (e) {
