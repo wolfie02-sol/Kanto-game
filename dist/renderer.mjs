@@ -1,3 +1,12 @@
+import {
+  detailGround,
+  buildingShadow,
+  detailBuilding,
+  furnitureShadow,
+  detailFurniture,
+  detailRoom,
+  animateScenery,
+} from "./pixel-detail.mjs";
 import { world, ZONES } from "./world.mjs";
 import { roomWorld } from "./story.mjs";
 export const TILE = 24,
@@ -59,6 +68,7 @@ function ellipse(c, x, y, w, h, color) {
 }
 function tree(c, x, y) {
   if (images.tree) {
+    ellipse(c, x - 3, y + 17, 34, 12, "#274d3e40");
     c.drawImage(images.tree, x - 6, y - 12, 36, 36);
     return;
   }
@@ -229,7 +239,9 @@ function building(c, b) {
   if (asset) {
     let x = b.x * 24,
       y = b.y * 24;
+    buildingShadow(c, b);
     c.drawImage(asset, x, y, b.w * 24, b.h * 24);
+    detailBuilding(c, b);
     if (b.kind === "center") {
       box(c, x + 76, y + 44, 15, 14, "#fff9db");
       box(c, x + 82, y + 45, 3, 12, "#cc5145");
@@ -293,6 +305,7 @@ function building(c, b) {
 function drawOutdoorStatic(c, zone) {
   let w = world(zone);
   ground(c, w.tiles, zone);
+  detailGround(c, w, ZONES[zone]);
   for (let b of w.buildings) building(c, b);
   for (let [xx, yy] of [
     [10, 3],
@@ -348,7 +361,7 @@ function drawOutdoorStatic(c, zone) {
       }
     }
 }
-function roomFurniture(c, d) {
+function baseRoomFurniture(c, d) {
   let x = d.x * 24,
     y = d.y * 24,
     w = d.w * 24,
@@ -490,6 +503,11 @@ function roomFurniture(c, d) {
     box(c, x + 6, y + h - 13, w - 12, 5, "#768d8a");
   }
 }
+function roomFurniture(c, d) {
+  furnitureShadow(c, d);
+  baseRoomFurniture(c, d);
+  detailFurniture(c, d);
+}
 function roomStatic(c, scene) {
   let w = roomWorld(scene);
   box(c, 0, 0, 336, 288, "#344a45");
@@ -530,6 +548,7 @@ function roomStatic(c, scene) {
   box(c, 313, 48, 4, 216, "#e8d6b3");
   box(c, 15, 264, 306, 12, "#a28a6b");
   box(c, 15, 274, 306, 6, "#645e50");
+  detailRoom(c, scene);
   for (let d of w.decor.filter((d) => d.kind === "rug")) roomFurniture(c, d);
   // Soft daylight across the floor, like the warm interiors of the handheld games.
   c.fillStyle = "#fff7cf25";
@@ -778,6 +797,7 @@ export function drawScene(ctx, state, tick = 0) {
       box(ctx, x, y, 13, 1, "#c9ece080");
     }
   }
+  animateScenery(ctx, s, tick, camera, viewW, viewH);
   ctx.restore();
   if (s.timeOfDay === "night") {
     box(ctx, 0, 0, viewW, viewH, indoor ? "#273c6a30" : "#16285277");
@@ -802,4 +822,24 @@ export function drawScene(ctx, state, tick = 0) {
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, viewW, viewH);
   }
+}
+
+/** A game-native landscape for the title card, using exactly the same detailed town art. */
+export function drawTitlePanorama(canvas) {
+  const c = canvas.getContext("2d");
+  c.imageSmoothingEnabled = false;
+  const map = mapCanvas("zone:0");
+  c.drawImage(
+    map,
+    0,
+    0,
+    map.width,
+    map.height,
+    0,
+    0,
+    canvas.width,
+    canvas.height,
+  );
+  c.fillStyle = "#15234624";
+  c.fillRect(0, 0, canvas.width, canvas.height);
 }
