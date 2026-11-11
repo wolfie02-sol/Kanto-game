@@ -1,3 +1,4 @@
+import { createMotion } from "./motion.mjs";
 import { mountRewards } from "./rewards.mjs";
 import {
   setData,
@@ -41,6 +42,11 @@ let state = null,
   saveTimer,
   toastTimer;
 const SAVE = "kanto-journey-v1";
+const motion = createMotion({
+  screen: $("#screen"),
+  modalRoot: root,
+  clearInput: () => pressed.clear(),
+});
 let storyLines = [],
   storyAfter = null,
   draftName = "RED",
@@ -116,7 +122,11 @@ function scheduleSave() {
   saveTimer = setTimeout(save, 200);
 }
 function show(content, cls = "") {
-  root.innerHTML = `<div class="overlay"><section class="modal ${cls}" role="dialog" aria-modal="true" aria-label="${modal === "starter" ? "Choose your starter" : "Game menu"}">${content}</section></div>`;
+  if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+  motion.replace(
+    `<div class="overlay"><section class="modal ${cls}" role="dialog" aria-modal="true" aria-label="${modal === "starter" ? "Choose your starter" : "Game menu"}">${content}</section></div>`,
+    cls === "battle-modal",
+  );
 }
 function head(title, sub = "TRAINER MENU") {
   return `<div class="modal-head"><div><div class="eyebrow">${sub}</div><h2>${title}</h2></div><button class="close" data-action="close" aria-label="Close menu">×</button></div>`;
@@ -125,8 +135,9 @@ function close() {
   if (battle) return;
   if (modal === "setup" || !state) return titleScreen();
   modal = "";
-  root.innerHTML = "";
-  canvas.focus({ preventScroll: true });
+  void motion.dismiss().then(() => {
+    if (!modal) canvas.focus({ preventScroll: true });
+  });
 }
 function render() {
   let z = state ? ZONES[state.zone] : ZONES[0],
@@ -379,7 +390,7 @@ function settings() {
   };
 }
 function interact() {
-  if (document.querySelector("#rewardsDialog[open]")) return;
+  if (motion.locked || document.querySelector("#rewardsDialog[open]")) return;
   if (storyLines.length) return advanceStory();
   if (!state || modal) return;
   let w =
@@ -624,21 +635,27 @@ function launchBattle(enemies, trainer, meta) {
   if (!state.party.length)
     return toast("Visit Professor Oak before looking for a battle.");
   if (!state.party.some((p) => p.hp > 0)) {
-    recover();
-    return;
+    return motion.scene("return", () => {
+      recover();
+      render();
+      save();
+    });
   }
-  if (modal) root.innerHTML = "";
-  enemies.forEach((p) => {
-    if (!state.seen.includes(p.id)) state.seen.push(p.id);
+  if (motion.locked) return;
+  return motion.scene("battle", () => {
+    if (modal) root.innerHTML = "";
+    enemies.forEach((p) => {
+      if (!state.seen.includes(p.id)) state.seen.push(p.id);
+    });
+    battle = new Battle(state.party, enemies, trainer);
+    battle.meta = meta;
+    modal = "battle";
+    battleView = "actions";
+    renderBattle();
+    render();
+    save();
+    beep(220, 0.2);
   });
-  battle = new Battle(state.party, enemies, trainer);
-  battle.meta = meta;
-  modal = "battle";
-  battleView = "actions";
-  renderBattle();
-  render();
-  save();
-  beep(220, 0.2);
 }
 function battleStats(p, who) {
   let next = p.level === 100 ? p.xp + 1 : expAt(p, p.level + 1),
@@ -685,7 +702,11 @@ function renderBattle() {
   log.scrollTop = 0;
 }
 function battleAct(action) {
-  if (busy) return;
+  if (busy || motion.locked) return;
+  const before = [battle.player, battle.enemy].map((p) => ({
+    id: p.id,
+    hp: p.hp,
+  }));
   busy = true;
   battle.act(action, state.bag);
   if (battle.meta.kind === "intro" && battle.outcome === "lost")
@@ -701,7 +722,7 @@ function battleAct(action) {
   }
   battleView = "actions";
   renderBattle();
-  if (action.type === "move") $(".battle-scene")?.classList.add("acted");
+  motion.battleTurn(before, battle, action);
   render();
   save();
   beep(180, 0.12);
@@ -720,6 +741,10 @@ function recover() {
   message("Your team has recovered. Take a breath, then try again.");
 }
 function finishBattle() {
+  if (!battle?.outcome || motion.locked) return;
+  return motion.scene("return", settleBattle);
+}
+function settleBattle() {
   let b = battle;
   if (!b?.outcome) return;
   if (b.meta.kind === "intro") {
@@ -826,7 +851,7 @@ function learnPending() {
   );
 }
 function move(dir) {
-  if (document.querySelector("#rewardsDialog[open]")) return;
+  if (motion.locked || document.querySelector("#rewardsDialog[open]")) return;
   if (!state || modal || battle || storyLines.length) return;
   let now = Date.now();
   if (now - lastStep < 140) return;
@@ -870,15 +895,16 @@ function move(dir) {
       message("Eight Gym Badges are required to enter Indigo Plateau.");
       return;
     }
-    state.zone = next;
-    state.y = ny <= 0 ? 19 : 2;
-    state.x = 14;
-    if (!state.visited.includes(next)) state.visited.push(next);
-    render();
-    areaNotice(ZONES[next].name);
-    message(ZONES[next].sub);
-    save();
-    return;
+    return motion.scene("route", () => {
+      state.zone = next;
+      state.y = ny <= 0 ? 19 : 2;
+      state.x = 14;
+      if (!state.visited.includes(next)) state.visited.push(next);
+      render();
+      areaNotice(ZONES[next].name);
+      message(ZONES[next].sub);
+      save();
+    });
   }
   let w = indoor ? roomWorld(state.scene) : world(state.zone);
   if (
@@ -969,21 +995,24 @@ function captureNames() {
   draftRival = $("#rivalInput")?.value ?? draftRival;
 }
 function beginStory() {
-  captureNames();
-  if (state)
-    try {
-      localStorage.setItem(SAVE + "-previous", JSON.stringify(state));
-    } catch {}
-  state = newAdventure(draftName, appearance, draftRival);
-  battle = null;
-  modal = "";
-  root.innerHTML = "";
-  storyLines = [];
-  pressed.clear();
-  render();
-  save();
-  message("Morning sunlight spills across the floor.");
-  resumeStory();
+  if (motion.locked) return;
+  return motion.scene("story", () => {
+    captureNames();
+    if (state)
+      try {
+        localStorage.setItem(SAVE + "-previous", JSON.stringify(state));
+      } catch {}
+    state = newAdventure(draftName, appearance, draftRival);
+    battle = null;
+    modal = "";
+    root.innerHTML = "";
+    storyLines = [];
+    pressed.clear();
+    render();
+    save();
+    message("Morning sunlight spills across the floor.");
+    resumeStory();
+  });
 }
 function say(lines, after = null) {
   storyLines = lines;
@@ -994,17 +1023,14 @@ function say(lines, after = null) {
 function paintStory() {
   let line = storyLines[0],
     el = $("#storyDialog");
-  el.classList.toggle("hidden", !line);
   $("#screen").classList.toggle("dialogue-open", !!line);
-  if (!line) {
-    el.innerHTML = "";
-    return;
-  }
-  el.innerHTML = `${line.character ? `<div class="speaker-avatar" style="background-image:url('assets/characters/${line.character}.png')"></div>` : ""}<div class="story-content"><span class="speaker-label">${escapeHTML(line.speaker)}</span><p>${escapeHTML(line.text)}</p><button class="story-next" id="storyNext">${storyLines.length > 1 ? "CONTINUE" : "LET’S GO"} <kbd>E / A</kbd> <span class="dialog-caret">▾</span></button></div>`;
-  $("#storyNext").onclick = advanceStory;
+  motion.story(el, line, () => {
+    el.innerHTML = `${line.character ? `<div class="speaker-avatar" style="background-image:url('assets/characters/${line.character}.png')"></div>` : ""}<div class="story-content"><span class="speaker-label">${escapeHTML(line.speaker)}</span><p>${escapeHTML(line.text)}</p><button class="story-next" id="storyNext">${storyLines.length > 1 ? "CONTINUE" : "LET’S GO"} <kbd>E / A</kbd> <span class="dialog-caret">▾</span></button></div>`;
+    $("#storyNext").onclick = advanceStory;
+  });
 }
 function advanceStory() {
-  if (!storyLines.length) return;
+  if (motion.locked || !storyLines.length) return;
   beep(550, 0.04);
   storyLines.shift();
   let done = storyLines.length === 0 ? storyAfter : null;
@@ -1048,21 +1074,24 @@ function resumeStory() {
   else if (state.storyStage === "lab" && state.scene === "lab") oakWelcome();
 }
 function enterRoom(scene, x, y, dir = "up") {
-  state.scene = scene;
-  state.x = x;
-  state.y = y;
-  state.dir = dir;
-  pressed.clear();
-  modal = "";
-  root.innerHTML = "";
-  render();
-  save();
-  message(
-    scene === "lab"
-      ? "A room full of possibilities. Professor Oak is just ahead."
-      : "A familiar place. A moment to catch your breath.",
-  );
-  if (scene === "lab" && state.storyStage === "lab") oakWelcome();
+  if (motion.locked) return;
+  return motion.scene("door", () => {
+    state.scene = scene;
+    state.x = x;
+    state.y = y;
+    state.dir = dir;
+    pressed.clear();
+    modal = "";
+    root.innerHTML = "";
+    render();
+    save();
+    message(
+      scene === "lab"
+        ? "A room full of possibilities. Professor Oak is just ahead."
+        : "A familiar place. A moment to catch your breath.",
+    );
+    if (scene === "lab" && state.storyStage === "lab") oakWelcome();
+  });
 }
 function useDoor(kind) {
   if (
@@ -1093,21 +1122,23 @@ function useDoor(kind) {
   }
   let t = roomTransition(kind);
   if (!t) return;
-  Object.assign(state, t);
-  if (
-    kind === "stairs-down" &&
-    ["wake", "downstairs"].includes(state.storyStage)
-  )
-    state.storyStage = "mom";
-  pressed.clear();
-  render();
-  save();
-  message(
-    state.scene === "outdoor"
-      ? "Pallet Town. The beginning of everything."
-      : "Make yourself at home. Press E to talk or explore.",
-  );
-  if (state.scene === "outdoor") areaNotice("Pallet Town");
+  return motion.scene("door", () => {
+    Object.assign(state, t);
+    if (
+      kind === "stairs-down" &&
+      ["wake", "downstairs"].includes(state.storyStage)
+    )
+      state.storyStage = "mom";
+    pressed.clear();
+    render();
+    save();
+    message(
+      state.scene === "outdoor"
+        ? "Pallet Town. The beginning of everything."
+        : "Make yourself at home. Press E to talk or explore.",
+    );
+    if (state.scene === "outdoor") areaNotice("Pallet Town");
+  });
 }
 function talkMom() {
   if (["wake", "downstairs", "mom"].includes(state.storyStage)) {
@@ -1191,7 +1222,7 @@ function startRivalBattle() {
 }
 root.addEventListener("click", (e) => {
   let button = e.target.closest("[data-action]");
-  if (!button || button.disabled) return;
+  if (!button || button.disabled || motion.locked) return;
   let a = button.dataset.action,
     i = Number(button.dataset.i),
     id = Number(button.dataset.id);
@@ -1208,12 +1239,14 @@ root.addEventListener("click", (e) => {
   }
   if (a === "new-story") return beginStory();
   if (a === "continue-game") {
-    modal = "";
-    root.innerHTML = "";
-    render();
-    resumeStory();
-    if (!storyLines.length) learnPending();
-    return canvas.focus({ preventScroll: true });
+    return motion.scene("story", () => {
+      modal = "";
+      root.innerHTML = "";
+      render();
+      resumeStory();
+      if (!storyLines.length) learnPending();
+      canvas.focus({ preventScroll: true });
+    });
   }
   if (a === "close") return close();
   if (a === "select-starter") {
@@ -1427,29 +1460,31 @@ document.addEventListener("click", (e) => {
   if (b && !root.contains(b) && state && !modal) detail(Number(b.dataset.i));
 });
 $("#partyBtn").onclick = () => {
-  if (!battle && !storyLines.length) partyModal();
+  if (!motion.locked && !battle && !storyLines.length) partyModal();
 };
 $("#boxBtn").onclick = () => {
-  if (!battle && !storyLines.length) partyModal("box");
+  if (!motion.locked && !battle && !storyLines.length) partyModal("box");
 };
 $("#bagBtn").onclick = () => {
-  if (!battle && !storyLines.length) bagModal();
+  if (!motion.locked && !battle && !storyLines.length) bagModal();
 };
 $("#settingsBtn").onclick = () => {
-  if (battle || storyLines.length) return;
+  if (motion.locked || battle || storyLines.length) return;
   state ? settings() : titleScreen();
 };
 document.querySelector(".brand").onclick = (e) => {
   e.preventDefault();
-  if (!battle && !storyLines.length) titleScreen();
+  if (!motion.locked && !battle && !storyLines.length) titleScreen();
 };
 $("#timeBtn").onclick = () => {
-  if (!state) return;
+  if (!state || motion.locked) return;
+  motion.cue(canvas);
   state.timeOfDay = state.timeOfDay === "night" ? "morning" : "night";
   render();
   save();
 };
 $("#zoomBtn").onclick = () => {
+  motion.cue(canvas);
   zoom = zoom === 2 ? 3 : 2;
   canvas.width = zoom === 2 ? 384 : 288;
   canvas.height = zoom === 2 ? 288 : 216;
@@ -1457,15 +1492,26 @@ $("#zoomBtn").onclick = () => {
 };
 $("#fullscreenBtn").onclick = () => {
   if (document.fullscreenElement) document.exitFullscreen?.();
-  else $("#screen").requestFullscreen?.();
+  else {
+    const target = matchMedia("(max-width:760px), (pointer:coarse)").matches
+      ? document.querySelector(".game-column")
+      : $("#screen");
+    target
+      .requestFullscreen?.()
+      .catch(() =>
+        toast(
+          "Fullscreen is unavailable in this browser. You can keep playing here.",
+        ),
+      );
+  }
 };
 $("#mapBtn").onclick = () => {
-  if (!battle && !storyLines.length) mapModal();
+  if (!motion.locked && !battle && !storyLines.length) mapModal();
 };
 $("#interactBtn").onclick = interact;
 $("#touchA").onclick = interact;
 $("#touchB").onclick = () => {
-  if (!battle && !storyLines.length)
+  if (!motion.locked && !battle && !storyLines.length)
     modal ? close() : state ? settings() : titleScreen();
 };
 $("#soundBtn").onclick = () => {
@@ -1476,7 +1522,7 @@ $("#soundBtn").onclick = () => {
 document.querySelectorAll("[data-view]").forEach(
   (b) =>
     (b.onclick = () => {
-      if (battle || storyLines.length) return;
+      if (motion.locked || battle || storyLines.length) return;
       let v = b.dataset.view;
       if (v === "adventure") close();
       if (v === "dex") dex();
@@ -1499,8 +1545,33 @@ const keys = {
 };
 let pressed = new Set();
 document.addEventListener("keydown", (e) => {
-  if (document.querySelector("#rewardsDialog[open]")) return;
-  if (["INPUT", "TEXTAREA"].includes(e.target.tagName)) return;
+  if (e.key === "Tab" && modal && root.firstElementChild) {
+    const controls = [
+      ...root.querySelectorAll(
+        'button:not(:disabled),input,select,[tabindex="0"]',
+      ),
+    ];
+    const first = controls[0],
+      last = controls.at(-1);
+    if (
+      e.shiftKey &&
+      (document.activeElement === first ||
+        !root.contains(document.activeElement))
+    ) {
+      e.preventDefault();
+      last?.focus();
+    } else if (
+      !e.shiftKey &&
+      (document.activeElement === last ||
+        !root.contains(document.activeElement))
+    ) {
+      e.preventDefault();
+      first?.focus();
+    }
+    return;
+  }
+  if (motion.locked || document.querySelector("#rewardsDialog[open]")) return;
+  if (["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName)) return;
   if (keys[e.key]) {
     e.preventDefault();
     pressed.add(keys[e.key]);
@@ -1511,7 +1582,7 @@ document.addEventListener("keydown", (e) => {
     if (!e.repeat) interact();
   }
   if (e.key === "Escape") {
-    if (battle || storyLines.length) return;
+    if (motion.locked || battle || storyLines.length) return;
     modal ? close() : state ? settings() : startModal();
   }
   if (!modal && state && !storyLines.length) {
@@ -1524,6 +1595,12 @@ document.addEventListener("keyup", (e) => {
   if (keys[e.key]) pressed.delete(keys[e.key]);
 });
 window.addEventListener("blur", () => pressed.clear());
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    pressed.clear();
+    save();
+  }
+});
 document.querySelectorAll("[data-dir]").forEach((b) => {
   b.onpointerdown = (e) => {
     e.preventDefault();
@@ -1531,7 +1608,10 @@ document.querySelectorAll("[data-dir]").forEach((b) => {
     pressed.add(b.dataset.dir);
     move(b.dataset.dir);
   };
-  b.onpointerup = b.onpointercancel = () => pressed.delete(b.dataset.dir);
+  b.onpointerup =
+    b.onpointercancel =
+    b.onlostpointercapture =
+      () => pressed.delete(b.dataset.dir);
 });
 window.addEventListener("beforeunload", save);
 let lastTick = 0;
@@ -1607,7 +1687,7 @@ try {
 mountRewards({
   data: () => window.gameData,
   canOpen: () => {
-    if (battle || modal || storyLines.length) {
+    if (motion.locked || battle || modal || storyLines.length) {
       toast("Finish your current dialogue or battle first.");
       return false;
     }
