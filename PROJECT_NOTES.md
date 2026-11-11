@@ -75,3 +75,9 @@ Seven reproduced defects fixed; 36 automated checks, server smoke and syntax che
 - Added mock provider and official Invoiced Development adapter; production explicitly disabled. No token-fee integration or real asset issuance.
 - Entry command is now `npm start` for game plus rewards; `npm run start:static` preserves the former static-only preview.
 - Development guide: README.md; system map: docs/ARCHITECTURE.md; sample policy/integration boundary: docs/REWARDS.md.
+
+## Version 2.2 — smoother interactions and phone controls
+
+- Shared motion module for doors/routes/stairs, story start/continue, dialogue, menus, battle entrance/exit and turn feedback. Reduced-motion and cancellation/background safeguards included.
+- Responsive phone stylesheet: larger touch targets, safe areas, scrolling menus/battles, landscape and fullscreen controls. Lost pointer capture and hidden tabs clear movement.
+- See docs/MOTION_AND_PHONES.md for timings, behavior and QA scope. Existing saved adventures and reward policy are unchanged.
