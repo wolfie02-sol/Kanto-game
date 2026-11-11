@@ -24,7 +24,7 @@ import {
   sceneName,
   roomTransition,
 } from "./story.mjs";
-import { drawScene, loadCharacters } from "./renderer.mjs";
+import { drawScene, loadCharacters, drawTitlePanorama } from "./renderer.mjs";
 const $ = (s) => document.querySelector(s),
   root = $("#modalRoot"),
   canvas = $("#world"),
@@ -52,8 +52,13 @@ let storyLines = [],
   draftName = "RED",
   draftRival = "BLUE",
   appearance = "red",
-  zoom = 2,
+  zoom = matchMedia("(max-width:760px)").matches ? 3 : 2,
   areaTimer;
+if (zoom === 3) {
+  canvas.width = 288;
+  canvas.height = 216;
+  $("#zoomBtn").textContent = "⌕ Closer view";
+}
 const escapeHTML = (value) =>
   String(value).replace(
     /[&<>"']/g,
@@ -171,7 +176,7 @@ function render() {
     ? state.party
         .map(
           (p, i) =>
-            `<button class="party-row" data-action="detail" data-i="${i}"><img src="${sprite(p.id)}" alt="${species(p.id).name}"><div class="party-detail"><b>${species(p.id).name}</b>${hp(p)}</div><span class="party-level">Lv. ${p.level}</span></button>`,
+            `<button class="party-row" data-type="${species(p.id).types[0]}" data-action="detail" data-i="${i}"><img src="${sprite(p.id)}" alt="${species(p.id).name}"><div class="party-detail"><b>${species(p.id).name}</b>${hp(p)}</div><span class="party-level">Lv. ${p.level}</span></button>`,
         )
         .join("")
     : '<div class="empty-party"><span class="empty-ball"></span><p>A friend you haven’t met yet.<br>Your first partner is waiting.</p></div>';
@@ -979,9 +984,10 @@ function titleScreen() {
   if (battle) return;
   modal = "title";
   show(
-    `<div class="title-layout"><div class="title-illustration"><span class="illustration-star">✧</span><div class="hero-sprite"></div><img class="title-pokemon" src="${sprite(1)}" alt="Bulbasaur"><img class="title-pokemon second" src="${sprite(25)}" alt="Pikachu"><span class="illustration-label">PALLET TOWN · KANTO</span></div><div class="title-copy"><div class="eyebrow">POKÉMON · KANTO JOURNEY</div><h2>Every great adventure<br>starts somewhere.</h2><p>A familiar room. A small town. A first Pokémon.<br>A whole world waiting to know your name.</p><div class="title-buttons">${state ? `<button class="primary" data-action="continue-game">Continue as ${escapeHTML(state.trainerName)} <span>→</span></button>` : ""}<button class="${state ? "secondary" : "primary"}" data-action="setup">${state ? "Begin a new story" : "Begin your story"} <span>→</span></button>${state ? `<button class="secondary" data-action="opening-help">See the new opening <span>↗</span></button>` : ""}</div><p class="title-footnote">All 151 original Pokémon. Your own Kanto story.<br>Keyboard and touch controls · Saved on this device</p></div></div>`,
+    `<div class="title-layout"><div class="title-illustration"><canvas id="titlePanorama" width="480" height="360" aria-hidden="true"></canvas><span class="illustration-star">✧</span><div class="hero-sprite"></div><img class="title-pokemon" src="${sprite(1)}" alt="Bulbasaur"><img class="title-pokemon second" src="${sprite(25)}" alt="Pikachu"><span class="illustration-label">PALLET TOWN · KANTO</span></div><div class="title-copy"><div class="eyebrow">POKÉMON · KANTO JOURNEY</div><h2>A whole world.<br>Waiting for you.</h2><p>A familiar room. A small town. A first Pokémon.<br>A whole world waiting to know your name.</p><div class="title-features"><span>151 POKÉMON</span><span>8 GYM BADGES</span><span>YOUR COLLECTOR JOURNEY</span></div><div class="title-buttons">${state ? `<button class="primary" data-action="continue-game">Continue as ${escapeHTML(state.trainerName)} <span>→</span></button>` : ""}<button class="${state ? "secondary" : "primary"}" data-action="setup">${state ? "Begin a new story" : "Begin your story"} <span>→</span></button>${state ? `<button class="secondary" data-action="opening-help">See the new opening <span>↗</span></button>` : ""}</div><p class="title-footnote">All 151 original Pokémon. Your own Kanto story.<br>Keyboard and touch controls · Saved on this device</p></div></div>`,
     "title-modal",
   );
+  drawTitlePanorama($("#titlePanorama"));
 }
 function setupScreen() {
   modal = "setup";
@@ -1527,6 +1533,7 @@ document.querySelectorAll("[data-view]").forEach(
       if (v === "adventure") close();
       if (v === "dex") dex();
       if (v === "map") mapModal();
+      if (v === "collect") openCollector();
     }),
 );
 const keys = {
@@ -1694,3 +1701,18 @@ mountRewards({
     return true;
   },
 });
+
+function openCollector() {
+  if (motion.locked || battle || storyLines.length) return;
+  const rewards = $("#rewardsBtn");
+  if (rewards) {
+    if (modal) close();
+    rewards.click();
+    return;
+  }
+  dialog(
+    "A journey worth collecting.",
+    "Defeat guardian challenges, earn a pack, and open it for shards or a card entitlement. Save shards for the exchange. The playable rewards sandbox and Collector Crypt development adapter are available in the GitHub build; this hosted adventure does not issue cards.",
+  );
+}
+$("#collectorInfoBtn").onclick = openCollector;
