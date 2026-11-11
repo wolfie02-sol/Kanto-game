@@ -1,4 +1,4 @@
-import { createWalker } from "./locomotion.mjs";
+import { createWalker } from "./locomotion.mjs?v=2.3.1";
 import {
   detailGround,
   buildingShadow,
