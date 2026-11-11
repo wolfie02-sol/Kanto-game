@@ -103,3 +103,51 @@ test("backgrounded animation has a bounded fallback and is cancelled afterwards"
   );
   assert.equal(cancelled, true);
 });
+
+test("new scene is painted while covered before reveal", async () => {
+  const events = [];
+  const g = createSceneGate({
+    cover: async () => events.push("cover"),
+    paint: async () => events.push("paint"),
+    uncover: async () => events.push("uncover"),
+  });
+  await g.run("door", () => events.push("commit"));
+  assert.deepEqual(events, ["cover", "commit", "paint", "uncover"]);
+});
+test("essential opacity fade does not require Web Animations", async () => {
+  const { fadeOpacity } = await import("../dist/motion.mjs");
+  const e = {
+    style: { opacity: "0" },
+    animate() {
+      throw Error("Must not call Web Animations");
+    },
+  };
+  await fadeOpacity(e, 0, 1, 200);
+  assert.equal(e.style.opacity, "1");
+});
+test("fade paints intermediate opacity and retains its final state", async () => {
+  const { fadeOpacity } = await import("../dist/motion.mjs");
+  const oldRAF = globalThis.requestAnimationFrame,
+    oldCancel = globalThis.cancelAnimationFrame;
+  let frame;
+  globalThis.requestAnimationFrame = (f) => {
+    frame = f;
+    return 1;
+  };
+  globalThis.cancelAnimationFrame = () => {};
+  try {
+    const e = { style: {} },
+      done = fadeOpacity(e, 0, 1, 200);
+    frame(100);
+    frame(200);
+    assert.equal(Number(e.style.opacity), 0.5);
+    frame(300);
+    await done;
+    assert.equal(e.style.opacity, "1");
+  } finally {
+    if (oldRAF) globalThis.requestAnimationFrame = oldRAF;
+    else delete globalThis.requestAnimationFrame;
+    if (oldCancel) globalThis.cancelAnimationFrame = oldCancel;
+    else delete globalThis.cancelAnimationFrame;
+  }
+});
