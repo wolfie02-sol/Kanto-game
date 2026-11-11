@@ -11,7 +11,7 @@
 - Time-of-day and camera zoom changes receive a brief visual cue. Location notices ease in.
 - The local rewards UI animates opening/closing and challenge updates; existing pack tear/reveal effects remain cosmetic.
 
-The gate clears held movement on both sides and ignores duplicate transition requests. State changes and saves occur under cover; animation completion never awards items, changes battle results or settles card rewards. Animation cancellation and a background-tab timeout release the gate. OS reduced-motion preferences skip JavaScript effects and suppress CSS animation.
+The gate clears held movement on both sides and ignores duplicate transition requests. State changes and saves occur under cover; animation completion never awards items, changes battle results or settles card rewards. Animation cancellation and a background-tab timeout release the gate. OS reduced-motion preferences suppress decorative movement and CSS animation. Essential scene changes retain a gentle opacity fade.
 
 ## Phone behavior
 
@@ -24,3 +24,11 @@ The gate clears held movement on both sides and ignores duplicate transition req
 ## Verification
 
 Automated checks cover exclusive commits, failure cleanup, reduced motion, unsupported/cancelled animation and background fallback, alongside existing game/reward tests. Browser QA used real UI actions inside 320px and 390px portrait viewports: naming a trainer, dialogue, stairs, house exit, lab entry, starter selection, a completed practice battle and recovery. Layout measurements showed no horizontal overflow in those tested views. Landscape was inspected at 844×390. This is responsive browser QA, not testing on physical iOS/Android hardware.
+
+## Phone stability correction (2.3.1)
+
+`dist/locomotion.mjs` replaces frame-dependent chasing with exact 140ms steps and a gait tied to those steps. Idle coordinates stop exactly; scene changes snap instead of sliding from the old room. The renderer caches map layouts and follows browser refresh directly. Only one primary touch can drive the D-pad.
+
+Essential scene, dialogue and menu fades now drive opacity directly with requestAnimationFrame. They work without Web Animations support and retain gentle opacity feedback when reduced motion is enabled. Decorative motion remains suppressed. New content is painted while the veil is opaque; battle and return fades cover the full viewport above battle dialogs. Fades have a bounded fallback when the page is backgrounded.
+
+Regression checks cover 30/60/120Hz equivalence, exact idle/arrival, teleport snapping, gait timing, covered painting, and intermediate opacity. Browser QA confirmed touch movement and a door fade. Physical iOS/Android verification remains outstanding; the saved-battle browser check encountered a test-tool timeout.
