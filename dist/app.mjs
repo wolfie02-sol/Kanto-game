@@ -1,4 +1,4 @@
-import { createMotion } from "./motion.mjs";
+import { createMotion } from "./motion.mjs?v=2.3.1";
 import { mountRewards } from "./rewards.mjs";
 import {
   setData,
@@ -24,7 +24,7 @@ import {
   sceneName,
   roomTransition,
 } from "./story.mjs";
-import { drawScene, loadCharacters, drawTitlePanorama } from "./renderer.mjs";
+import { drawScene, loadCharacters, drawTitlePanorama } from "./renderer.mjs?v=2.3.1";
 const $ = (s) => document.querySelector(s),
   root = $("#modalRoot"),
   canvas = $("#world"),
