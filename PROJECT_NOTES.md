@@ -84,3 +84,7 @@ Seven reproduced defects fixed; 36 automated checks, server smoke and syntax che
 
 ## Version 2.3 — collector interface and pixel detail
 Dark collector display theme, native pixel-art town panorama, cached foliage/building/interior details, phone theme and closer camera. See docs/ART_AND_THEME.md. All four phone directions are covered by an interface regression check.
+
+## Version 2.3.1 — phone jitter and invisible fades
+
+Exact, time-based movement and idle positions; cached layouts; single-pointer D-pad. Frame-driven gentle opacity fades remain in reduced-motion mode. Scene content paints under cover; encounters and battle exits cover dialogs. Existing saves and gameplay rules remain compatible. See docs/MOTION_AND_PHONES.md for test scope and remaining device verification.
