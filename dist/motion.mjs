@@ -1,9 +1,9 @@
 /** Small presentation-only effects. Game state and reward settlement never depend on animation events. */
 export const DURATIONS = Object.freeze({
-  cover: 110,
-  uncover: 140,
-  battleCover: 160,
-  battleUncover: 180,
+  cover: 200,
+  uncover: 220,
+  battleCover: 250,
+  battleUncover: 250,
   menu: 150,
   text: 110,
 });
@@ -39,10 +39,53 @@ export async function animate(
   }
 }
 
+/** Essential, gentle opacity feedback stays available with reduced motion and without Web Animations. */
+export function fadeOpacity(element, from, to, duration) {
+  if (!element) return Promise.resolve();
+  if (!globalThis.requestAnimationFrame || duration <= 0) {
+    element.style.opacity = String(to);
+    return Promise.resolve();
+  }
+  return new Promise((resolve) => {
+    let frame,
+      timer,
+      started = null;
+    element.style.opacity = String(from);
+    const finish = () => {
+      clearTimeout(timer);
+      if (frame !== undefined) cancelAnimationFrame(frame);
+      element.style.opacity = String(to);
+      resolve();
+    };
+    const step = (time) => {
+      started ??= time;
+      const p = Math.max(0, Math.min(1, (time - started) / duration));
+      element.style.opacity = String(from + (to - from) * p * p * (3 - 2 * p));
+      if (p === 1) finish();
+      else frame = requestAnimationFrame(step);
+    };
+    timer = setTimeout(finish, duration + 350);
+    frame = requestAnimationFrame(step);
+  });
+}
+function nextPaint() {
+  return new Promise((resolve) => {
+    let frame, timer;
+    const finish = () => {
+      clearTimeout(timer);
+      if (frame !== undefined) globalThis.cancelAnimationFrame?.(frame);
+      resolve();
+    };
+    timer = setTimeout(finish, 80);
+    if (globalThis.requestAnimationFrame) frame = requestAnimationFrame(finish);
+  });
+}
+
 /** One scene change at a time. Duplicate taps are ignored, never queued as another door/battle. */
 export function createSceneGate({
   cover,
   uncover,
+  paint = async () => {},
   onLock = () => {},
   onUnlock = () => {},
 }) {
@@ -58,6 +101,7 @@ export function createSceneGate({
         onLock(kind);
         await cover(kind);
         commit();
+        await paint(kind);
         await uncover(kind);
         return true;
       } finally {
@@ -68,7 +112,12 @@ export function createSceneGate({
   };
 }
 
-export function createMotion({ screen, modalRoot, clearInput }) {
+export function createMotion({
+  screen,
+  modalRoot,
+  clearInput,
+  paintScene = () => {},
+}) {
   const veil = document.createElement("div");
   veil.className = "scene-transition";
   veil.setAttribute("aria-hidden", "true");
@@ -76,29 +125,52 @@ export function createMotion({ screen, modalRoot, clearInput }) {
   const gate = createSceneGate({
     onLock(kind) {
       clearInput();
+      const fullPage = ["battle", "return", "story"].includes(kind);
+      veil.classList.toggle("viewport-transition", fullPage);
+      (fullPage ? document.fullscreenElement || document.body : screen).append(
+        veil,
+      );
       screen.dataset.transition = kind;
+      screen.dataset.transitionPhase = "cover";
       veil.classList.toggle("battle-wipe", kind === "battle");
     },
     cover: (kind) =>
-      animate(
+      fadeOpacity(
         veil,
-        [{ opacity: 0 }, { opacity: 1 }],
-        kind === "battle" ? DURATIONS.battleCover : DURATIONS.cover,
-      ).then(() => {
-        veil.style.opacity = "1";
-      }),
+        0,
+        1,
+        prefersReducedMotion()
+          ? 110
+          : kind === "battle"
+            ? DURATIONS.battleCover
+            : DURATIONS.cover,
+      ),
+    paint: async () => {
+      screen.dataset.transitionPhase = "covered";
+      paintScene();
+      await nextPaint();
+      await new Promise((resolve) => setTimeout(resolve, 60));
+    },
     uncover: (kind) => {
-      veil.style.opacity = "0";
-      return animate(
+      screen.dataset.transitionPhase = "uncover";
+      return fadeOpacity(
         veil,
-        [{ opacity: 1 }, { opacity: 0 }],
-        kind === "battle" ? DURATIONS.battleUncover : DURATIONS.uncover,
+        1,
+        0,
+        prefersReducedMotion()
+          ? 130
+          : kind === "battle"
+            ? DURATIONS.battleUncover
+            : DURATIONS.uncover,
       );
     },
     onUnlock() {
       clearInput();
       veil.style.opacity = "0";
+      screen.append(veil);
+      veil.classList.remove("viewport-transition");
       delete screen.dataset.transition;
+      delete screen.dataset.transitionPhase;
     },
   });
   let menuRevision = 0,
@@ -114,26 +186,10 @@ export function createMotion({ screen, modalRoot, clearInput }) {
     const next = modalRoot.querySelector(".modal");
     next?.setAttribute("tabindex", "-1");
     if (!sameBattle) {
-      void animate(
-        next,
-        [
-          { opacity: 0, transform: "translateY(7px) scale(.99)" },
-          { opacity: 1, transform: "none" },
-        ],
-        DURATIONS.menu,
-      );
+      void fadeOpacity(next, 0, 1, DURATIONS.menu);
       if (!previous)
-        void animate(
-          modalRoot.querySelector(".overlay"),
-          [{ opacity: 0 }, { opacity: 1 }],
-          110,
-        );
-    } else
-      void animate(
-        next?.querySelector(".battle-bottom"),
-        [{ opacity: 0.65 }, { opacity: 1 }],
-        90,
-      );
+        void fadeOpacity(modalRoot.querySelector(".overlay"), 0, 1, 110);
+    } else void fadeOpacity(next?.querySelector(".battle-bottom"), 0.65, 1, 90);
     const matching =
       action &&
       [...modalRoot.querySelectorAll("[data-action]")].find(
@@ -155,7 +211,7 @@ export function createMotion({ screen, modalRoot, clearInput }) {
     const revision = ++menuRevision,
       overlay = modalRoot.firstElementChild;
     if (overlay) overlay.style.pointerEvents = "none";
-    await animate(overlay, [{ opacity: 1 }, { opacity: 0 }], 100);
+    await fadeOpacity(overlay, 1, 0, 120);
     if (revision === menuRevision) modalRoot.replaceChildren();
   }
   function story(element, line, paint) {
@@ -163,17 +219,16 @@ export function createMotion({ screen, modalRoot, clearInput }) {
     if (line) {
       const opening = element.classList.contains("hidden");
       element.classList.remove("hidden");
+      element.style.opacity = "1";
       paint();
-      void animate(
+      void fadeOpacity(
         opening ? element : element.querySelector(".story-content"),
-        [
-          { opacity: 0, transform: `translateY(${opening ? 6 : 2}px)` },
-          { opacity: 1, transform: "none" },
-        ],
-        opening ? 150 : DURATIONS.text,
+        0,
+        1,
+        opening ? 190 : DURATIONS.text,
       );
     } else {
-      void animate(element, [{ opacity: 1 }, { opacity: 0 }], 100).then(() => {
+      void fadeOpacity(element, 1, 0, 140).then(() => {
         if (revision === storyRevision) {
           element.classList.add("hidden");
           element.replaceChildren();
