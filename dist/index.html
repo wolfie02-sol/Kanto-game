@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    <meta name="theme-color" content="#263f36" />
+    <meta name="theme-color" content="#101520" />
     <meta
       name="description"
       content="Wake up in Pallet Town. Name your trainer, meet your first Pokémon, and begin a richly detailed Kanto adventure."
@@ -14,8 +14,9 @@
     <title>Pokémon · Kanto Journey</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="rework.css" />
-    <link rel="stylesheet" href="rewards.css" />
     <link rel="stylesheet" href="phone.css" />
+    <link rel="stylesheet" href="collector-theme.css" />
+    <link rel="stylesheet" href="rewards.css" />
   </head>
   <body>
     <header>
@@ -26,9 +27,14 @@
         ></a
       >
       <nav>
-        <button class="navbtn active" data-view="adventure">Play</button
-        ><button class="navbtn" data-view="dex">Pokédex <span>151</span></button
-        ><button class="navbtn" data-view="map">Region map</button>
+        <button class="navbtn active" data-view="adventure">
+          <span class="nav-index">01</span> Adventure</button
+        ><button class="navbtn" data-view="dex">
+          <span class="nav-index">02</span> Pokédex <span>151</span></button
+        ><button class="navbtn" data-view="map">Region map</button
+        ><button class="navbtn" data-view="collect">
+          <span class="nav-index">03</span> Collect
+        </button>
       </nav>
       <div class="header-right">
         <span class="save-indicator" id="saveState"
@@ -129,10 +135,10 @@
           </div>
           <div class="touch-controls">
             <div class="dpad">
-              <button data-dir="up" aria-label="Move up">▲</button
-              ><button data-dir="left" aria-label="Move left">◀</button
-              ><button data-dir="down" aria-label="Move down">▼</button
-              ><button data-dir="right" aria-label="Move right">▶</button>
+              <button data-dir="up" aria-label="Move up">↑</button
+              ><button data-dir="left" aria-label="Move left">←</button
+              ><button data-dir="down" aria-label="Move down">↓</button
+              ><button data-dir="right" aria-label="Move right">→</button>
             </div>
             <button id="touchA">A <small>INTERACT</small></button
             ><button id="touchB">B <small>MENU</small></button>
@@ -170,6 +176,17 @@
               <span>→</span>
             </div>
           </section>
+          <section class="collector-panel">
+            <div class="eyebrow">THE COLLECTOR PATH</div>
+            <div class="foil-pack foil-pack-back" aria-hidden="true"></div>
+            <div class="foil-pack" aria-hidden="true">
+              <span>✦</span><b>KANTO</b><small>GUARDIAN PACK</small>
+            </div>
+            <h2>Win the battle.<br />Rip the pack.</h2>
+            <p>Guardian challenges. Shards to save. A collection to build.</p>
+            <span class="collector-status">✧ REWARDS IN DEVELOPMENT</span
+            ><br /><button id="collectorInfoBtn">Explore rewards ↗</button>
+          </section>
           <section class="panel team-panel">
             <div class="panel-heading">
               <h2>Your companions</h2>
@@ -189,13 +206,7 @@
             <div class="badges" id="badges"></div>
             <p>The road to the Pokémon League.</p>
           </section>
-          <button id="rewardsBtn" class="bag-button">
-            <span>✦</span>
-            <div>
-              <b>Packs & rewards</b><small>Guardian challenges · Sandbox</small>
-            </div>
-            <span>↗</span></button
-          ><button class="bag-button" id="bagBtn">
+          <button class="bag-button" id="bagBtn">
             <span>▣</span>
             <div>
               <b>Your backpack</b
@@ -203,7 +214,19 @@
             </div>
             <span>↗</span>
           </button>
+          <button id="rewardsBtn" class="bag-button">
+            <span>✦</span>
+            <div>
+              <b>Packs & rewards</b><small>Guardian challenges · Sandbox</small>
+            </div>
+            <span>↗</span>
+          </button>
         </aside>
+      </div>
+      <div class="collector-route">
+        <b>YOUR COLLECTOR JOURNEY</b><span>01</span> BATTLE <span>→</span>
+        <span>02</span> OPEN <span>→</span> <span>03</span> COLLECT
+        <small>Collector Crypt–inspired design · Unofficial fan project</small>
       </div>
       <footer>
         <span
