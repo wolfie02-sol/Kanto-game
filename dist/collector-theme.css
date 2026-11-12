@@ -1654,3 +1654,32 @@ nav {
     display: flex;
   }
 }
+
+/* Battle results have their own stable palette, independent of legacy primary/hover rules. */
+.battle-modal .battle-actions button.battle-result,
+.battle-modal .battle-actions button.battle-result:hover,
+.battle-modal .battle-actions button.battle-result:active,
+.battle-modal .battle-actions button.battle-result:focus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 72px;
+  font: 24px/1.2 PixelRPG, monospace;
+  padding: 16px 12px;
+  background: #edbd78;
+  color: #202e40;
+  border: 2px solid #ffe0a5;
+  box-shadow: inset 0 -3px 0 #c28a50;
+  text-align: center;
+  line-height: 1.15;
+  filter: none;
+  transition: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.battle-modal .battle-actions button.battle-result::before {
+  content: none;
+}
+.battle-modal .battle-actions button.battle-result:focus-visible {
+  outline: 2px solid #344f70;
+  outline-offset: -6px;
+}
