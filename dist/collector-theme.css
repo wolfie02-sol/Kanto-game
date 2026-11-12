@@ -1664,7 +1664,9 @@ nav {
   align-items: center;
   justify-content: center;
   min-height: 72px;
-  font: 24px/1.2 PixelRPG, monospace;
+  font:
+    24px/1.2 PixelRPG,
+    monospace;
   padding: 16px 12px;
   background: #edbd78;
   color: #202e40;
