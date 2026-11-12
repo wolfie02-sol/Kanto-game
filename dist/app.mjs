@@ -1,5 +1,5 @@
-import { revealWild } from "./wild-encounter.mjs?v=2.4.0";
-import { createMotion } from "./motion.mjs?v=2.4.0";
+import { revealWild } from "./wild-encounter.mjs?v=2.4.1";
+import { createMotion } from "./motion.mjs?v=2.4.1";
 import { mountRewards } from "./rewards.mjs";
 import {
   setData,
@@ -15,7 +15,7 @@ import {
   freshVolatile,
   hasUsableMoves,
 } from "./engine.mjs";
-import { ZONES, GYMS, LEAGUE, WATER, world } from "./world.mjs";
+import { ZONES, GYMS, LEAGUE, WATER, world } from "./world.mjs?v=2.4.1";
 import {
   newAdventure,
   migrateAdventure,
@@ -29,7 +29,7 @@ import {
   drawScene,
   loadCharacters,
   drawTitlePanorama,
-} from "./renderer.mjs?v=2.4.0";
+} from "./renderer.mjs?v=2.4.1";
 const $ = (s) => document.querySelector(s),
   root = $("#modalRoot"),
   canvas = $("#world"),
