@@ -94,17 +94,22 @@ export function createSceneGate({
     get locked() {
       return locked;
     },
-    async run(kind, commit) {
+    async run(kind, commit, prepare) {
       if (locked) return false;
       locked = true;
+      let cleanup;
       try {
         onLock(kind);
+        if (prepare) cleanup = await prepare();
         await cover(kind);
+        cleanup?.();
+        cleanup = undefined;
         commit();
         await paint(kind);
         await uncover(kind);
         return true;
       } finally {
+        cleanup?.();
         locked = false;
         onUnlock();
       }
@@ -240,7 +245,7 @@ export function createMotion({
     get locked() {
       return gate.locked;
     },
-    scene: (kind, commit) => gate.run(kind, commit),
+    scene: (kind, commit, prepare) => gate.run(kind, commit, prepare),
     replace,
     dismiss,
     story,
