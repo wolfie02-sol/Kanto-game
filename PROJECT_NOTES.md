@@ -1,3 +1,8 @@
+# Victory button correction — 2.4.2
+
+- Battle completion actions now use `battle-result` instead of the generic `primary` class. A scoped warm-gold/navy palette covers normal, hover, press and focus states; inherited green hover colors and decorative pointer arrows no longer apply. Keyboard focus remains visible.
+- Versioned theme CSS and app entry prevent old phone styles persisting after deployment.
+
 # Map correction — 2.4.1
 
 - Removed the rail-shaped fishing platform shown beside the pond in the phone screenshot, including the legacy overview renderer. Fishing interaction remains available.
