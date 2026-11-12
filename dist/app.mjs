@@ -138,6 +138,7 @@ function head(title, sub = "TRAINER MENU") {
 }
 function close() {
   if (battle) return;
+  pressed.clear();
   if (modal === "setup" || !state) return titleScreen();
   modal = "";
   void motion.dismiss().then(() => {
@@ -280,6 +281,22 @@ function dialog(title, text, actions = "") {
   show(
     `${head(title, "KANTO STORIES")}<p class="dialog-text">${text}</p><div class="modal-actions">${actions}<button class="secondary" data-action="close">Back to the adventure</button></div>`,
   );
+}
+/** A blocked exit must explain the next step instead of silently stopping movement. */
+function routeBlocked(title, text) {
+  pressed.clear();
+  message(text);
+  beep(130);
+  dialog(title, text);
+  const panel = root.querySelector(".modal");
+  const heading = panel.querySelector("h2");
+  const description = panel.querySelector(".dialog-text");
+  heading.id = "routeGateTitle";
+  description.id = "routeGateDescription";
+  panel.setAttribute("role", "alertdialog");
+  panel.removeAttribute("aria-label");
+  panel.setAttribute("aria-labelledby", heading.id);
+  panel.setAttribute("aria-describedby", description.id);
 }
 function partyModal(mode = "party") {
   if (!state) return titleScreen();
@@ -921,23 +938,31 @@ function move(dir) {
     }
     let next = state.zone + (ny <= 0 ? 1 : -1);
     if (next < 0 || next >= ZONES.length) {
-      message(
+      routeBlocked(
+        "End of the trail",
         next < 0
-          ? "The sea stretches beyond Pallet Town."
-          : "The Pokémon League is waiting inside.",
+          ? "The sea marks the southern edge of Pallet Town. Follow the main path north to continue your journey."
+          : "This is the northern edge of Kanto. Enter the Pokémon League building in Indigo Plateau to continue your challenge.",
       );
       return;
     }
     let gym = ZONES[state.zone].gym;
     if (ny <= 0 && gym !== undefined && !state.badges.includes(gym)) {
-      message(
-        `Earn ${GYMS[gym].name}’s ${GYMS[gym].badge} Badge to continue north.`,
+      const leader = GYMS[gym];
+      routeBlocked(
+        "Route blocked — Gym Badge required",
+        `Defeat ${leader.name} at the ${ZONES[state.zone].name} Gym and earn the ${leader.badge} Badge before continuing north. The Gym is in the northeast part of town.`,
       );
-      beep(130);
       return;
     }
     if (next === 14 && state.badges.length < 8) {
-      message("Eight Gym Badges are required to enter Indigo Plateau.");
+      const missing = GYMS.findIndex((_, i) => !state.badges.includes(i));
+      const leader = GYMS[missing];
+      const town = ZONES.find((z) => z.gym === missing);
+      routeBlocked(
+        "Pokémon League — eight badges required",
+        `You need all eight Gym Badges to enter Indigo Plateau. You have ${state.badges.length} of 8. Defeat ${leader.name} at the ${town.name} Gym to earn your next badge: the ${leader.badge} Badge.`,
+      );
       return;
     }
     return motion.scene("route", () => {

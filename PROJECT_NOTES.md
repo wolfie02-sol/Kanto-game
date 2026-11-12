@@ -1,3 +1,7 @@
+# Blocked-route notices — 2.6.3
+
+Blocked Gym exits now open a prominent accessible notice naming the leader, town, required badge and Gym location. Indigo Plateau explains the eight-badge requirement and next missing Gym; the two region boundaries explain where to go instead. Movement is cleared when showing/dismissing the notice, and route locks are unchanged.
+
 # Playthrough corrections — 2.6.2
 
 Fixed clipped/duplicated portraits, tiny mobile text, green battle-menu hover states, hidden final battle messages, instant map travel, and incomplete battle-save counters. Snapshot validation now rejects broken battle state and accepts older saves. Added a seeded battle stress check. See [playtest evidence](docs/PLAYTEST_2_6_2.md) for scope, regression tests and verification limits.
