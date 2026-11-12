@@ -14,7 +14,8 @@ import {
   validateSave,
   freshVolatile,
   hasUsableMoves,
-} from "./engine.mjs?v=2.5.0";
+  wildForm,
+} from "./engine.mjs?v=2.6.0";
 import { ZONES, GYMS, LEAGUE, WATER, world } from "./world.mjs";
 import {
   newAdventure,
@@ -223,7 +224,9 @@ function render() {
     let g = GYMS[next];
     $("#questTitle").textContent = g
       ? `Next stop: the ${g.badge} Badge.`
-      : "The summit is waiting.";
+      : state.champion
+        ? "Kanto Champion."
+        : "The summit is waiting.";
     $("#questText").textContent = g
       ? `Train your team, explore the region, and challenge ${g.name} when you’re ready.`
       : state.champion
@@ -641,6 +644,8 @@ function encounter(fish = false) {
     if (accessible.length)
       id = accessible[Math.floor(Math.random() * accessible.length)].id;
   }
+  // Fishing and rare finds: evolved forms only appear at believable levels.
+  id = wildForm(id, level);
   if ([144, 145, 146, 150, 151].includes(id) && !state.champion) {
     id = z.pool[0];
   }

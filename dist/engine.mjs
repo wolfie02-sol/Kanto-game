@@ -5,6 +5,8 @@ export function setData(data) {
 export const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 export const species = (id) => DATA.pokemon[id];
 export const moveData = (id) => DATA.moves[id];
+// Battle text uses a Pokémon's own name, even while it is transformed.
+export const nameOf = (p) => species(p.transformed || p.id).name;
 export const expAt = (p, l) =>
   DATA.experience[species(p.id).growth][Math.min(100, l)];
 export const hasUsableMoves = (p) =>
@@ -85,6 +87,26 @@ const chart = {
   ghost: { normal: 0, psychic: 0, ghost: 2 },
   dragon: { dragon: 2 },
 };
+let preEvolutions = null;
+// What a species evolves from, and from which level (stone/trade evolutions count as 30).
+export function preEvolution(id) {
+  if (!preEvolutions) {
+    preEvolutions = {};
+    for (const [from, p] of Object.entries(DATA.pokemon))
+      for (const e of p.evolve)
+        preEvolutions[e.id] ??= {
+          from: Number(from),
+          level: e.trigger === 1 && e.level ? e.level : 30,
+        };
+  }
+  return preEvolutions[id] || null;
+}
+/** The form a wild Pokémon should take at this level: no level-8 Gyarados. */
+export function wildForm(id, level) {
+  for (let pe = preEvolution(id); pe && level < pe.level; pe = preEvolution(id))
+    id = pe.from;
+  return id;
+}
 export const typesOf = (p) => p.types || species(p.id).types;
 export const effectiveness = (type, types) =>
   types.reduce((n, t) => n * (chart[type]?.[t] ?? 1), 1);
@@ -163,17 +185,17 @@ export function gainExp(p, amount) {
     let old = stat(p, 0);
     p.level++;
     p.hp += stat(p, 0) - old;
-    logs.push(`${species(p.id).name} grew to level ${p.level}!`);
+    logs.push(`${nameOf(p)} grew to level ${p.level}!`);
     for (let [l, id] of species(p.id).learn.filter((x) => x[0] === p.level)) {
       if (!p.moves.some((m) => m.id === id)) {
         if (p.moves.length < 4) {
           p.moves.push({ id, pp: moveData(id).pp });
-          logs.push(`${species(p.id).name} learned ${moveData(id).name}!`);
+          logs.push(`${nameOf(p)} learned ${moveData(id).name}!`);
         } else {
           p.learnQueue ??= [];
           if (!p.learnQueue.includes(id)) p.learnQueue.push(id);
           logs.push(
-            `${species(p.id).name} wants to learn ${moveData(id).name}! Choose a move after battle.`,
+            `${nameOf(p)} wants to learn ${moveData(id).name}! Choose a move after battle.`,
           );
         }
       }
@@ -182,11 +204,11 @@ export function gainExp(p, amount) {
       (e) => e.trigger === 1 && e.level && p.level >= e.level,
     );
     if (evo) {
-      let name = species(p.id).name,
+      let name = nameOf(p),
         hp = stat(p, 0);
       p.id = evo.id;
       p.hp += stat(p, 0) - hp;
-      logs.push(`What? ${name} evolved into ${species(p.id).name}!`);
+      logs.push(`What? ${name} evolved into ${nameOf(p)}!`);
       for (let [l, id] of species(p.id).learn.filter(
         ([l]) => l >= evo.level && l <= p.level,
       )) {
@@ -194,12 +216,12 @@ export function gainExp(p, amount) {
           continue;
         if (p.moves.length < 4) {
           p.moves.push({ id, pp: moveData(id).pp });
-          logs.push(`${species(p.id).name} learned ${moveData(id).name}!`);
+          logs.push(`${nameOf(p)} learned ${moveData(id).name}!`);
         } else {
           p.learnQueue ??= [];
           p.learnQueue.push(id);
           logs.push(
-            `${species(p.id).name} wants to learn ${moveData(id).name}! Choose a move after battle.`,
+            `${nameOf(p)} wants to learn ${moveData(id).name}! Choose a move after battle.`,
           );
         }
       }
@@ -276,7 +298,7 @@ function statusApply(a, d, status, logs, rng = Math.random, announce = false) {
   d.status = status;
   if (status === "slp") d.sleep = 1 + Math.floor(rng() * 7);
   logs.push(
-    `${species(d.id).name} is ${{ psn: "poisoned", brn: "burned", par: "paralyzed", slp: "asleep", frz: "frozen" }[status]}!`,
+    `${nameOf(d)} is ${{ psn: "poisoned", brn: "burned", par: "paralyzed", slp: "asleep", frz: "frozen" }[status]}!`,
   );
 }
 function hit(p, amount) {
@@ -305,7 +327,7 @@ function callMove(a, d, id, logs, rng, depth) {
 }
 function useMove(a, d, slot, logs, rng, depth = 0) {
   if (a.hp <= 0 || d.hp <= 0) return;
-  let n = species(a.id).name;
+  let n = nameOf(a);
   if (a.recharge) {
     a.recharge = false;
     logs.push(`${n} must recharge!`);
@@ -442,14 +464,14 @@ function useMove(a, d, slot, logs, rng, depth = 0) {
   if (id === 73) {
     if (!typesOf(d).includes("grass") && !d.seed && !d.sub) {
       d.seed = true;
-      logs.push(`${species(d.id).name} was seeded!`);
+      logs.push(`${nameOf(d)} was seeded!`);
     } else logs.push("But it failed!");
     return;
   }
   if (id === 50) {
     let last = d.lastMove || d.moves[0]?.id;
     d.disabled = last;
-    logs.push(`${species(d.id).name}'s ${moveData(last).name} was disabled!`);
+    logs.push(`${nameOf(d)}'s ${moveData(last).name} was disabled!`);
     return;
   }
   if ([113, 115].includes(id)) {
@@ -487,7 +509,7 @@ function useMove(a, d, slot, logs, rng, depth = 0) {
         }
         target.stages[idx] = clamp((target.stages[idx] || 0) + c, -6, 6);
         logs.push(
-          `${species(target.id).name}'s ${{ 1: "Attack", 2: "Defense", 3: "Special", 4: "Speed", 7: "accuracy", 8: "evasion" }[idx]} ${c > 0 ? "rose" : "fell"}!`,
+          `${nameOf(target)}'s ${{ 1: "Attack", 2: "Defense", 3: "Special", 4: "Speed", 7: "accuracy", 8: "evasion" }[idx]} ${c > 0 ? "rose" : "fell"}!`,
         );
       }
     }
@@ -565,7 +587,7 @@ function useMove(a, d, slot, logs, rng, depth = 0) {
     if (ail === 6) {
       if (!d.sub && !d.confusion) {
         d.confusion = 2 + Math.floor(rng() * 4);
-        logs.push(`${species(d.id).name} became confused!`);
+        logs.push(`${nameOf(d)} became confused!`);
       } else if (!m.power) logs.push("But it failed!");
     } else if ({ 1: "par", 2: "slp", 3: "frz", 4: "brn", 5: "psn" }[ail])
       statusApply(
@@ -579,7 +601,7 @@ function useMove(a, d, slot, logs, rng, depth = 0) {
   }
   if (d.status === "frz" && m.type === "fire" && m.power) {
     d.status = "";
-    logs.push(`${species(d.id).name} thawed out!`);
+    logs.push(`${nameOf(d)} thawed out!`);
   }
 }
 export class Battle {
@@ -645,7 +667,7 @@ export class Battle {
       this.participants ??= [];
       if (!this.participants.includes(this.pi)) this.participants.push(this.pi);
       a = p;
-      logs.push(`Go, ${species(a.id).name}!`);
+      logs.push(`Go, ${nameOf(a)}!`);
       if (!wasFainted) useMove(d, a, this.enemyMove(), logs, this.rng);
       else forcedSwitch = true;
     } else if (action.type === "ball") {
@@ -655,7 +677,7 @@ export class Battle {
       bag.ball--;
       if (captureChance(d, "ball", this.rng)) {
         this.outcome = "caught";
-        logs.push(`Gotcha! ${species(d.id).name} was caught!`);
+        logs.push(`Gotcha! ${nameOf(d)} was caught!`);
         return (this.logs = logs);
       }
       logs.push("Oh no! The Pokémon broke free!");
@@ -665,7 +687,7 @@ export class Battle {
       if (a.hp === stat(a, 0)) return (this.logs = ["HP is already full."]);
       bag.potion--;
       a.hp = Math.min(stat(a, 0), a.hp + 20);
-      logs.push(`${species(a.id).name} recovered 20 HP!`);
+      logs.push(`${nameOf(a)} recovered 20 HP!`);
       useMove(d, a, this.enemyMove(), logs, this.rng);
     } else if (action.type === "run") {
       if (this.trainer)
@@ -718,7 +740,7 @@ export class Battle {
       if (["psn", "brn"].includes(p.status)) {
         p.hp = Math.max(0, p.hp - Math.max(1, Math.floor(stat(p, 0) / 16)));
         logs.push(
-          `${species(p.id).name} is hurt by ${p.status === "psn" ? "poison" : "its burn"}!`,
+          `${nameOf(p)} is hurt by ${p.status === "psn" ? "poison" : "its burn"}!`,
         );
       }
       if (p.seed && p.hp > 0) {
@@ -729,7 +751,7 @@ export class Battle {
       }
     }
     if (d.hp <= 0) {
-      logs.push(`${species(d.id).name} fainted!`);
+      logs.push(`${nameOf(d)} fainted!`);
       let exp = Math.floor(
         ((species(d.id).exp * d.level) / 7) * (this.trainer ? 1.5 : 1),
       );
@@ -738,7 +760,7 @@ export class Battle {
         .filter((p) => p && p.hp > 0);
       for (let participant of eligible) {
         let amount = Math.floor(exp / Math.max(1, eligible.length));
-        logs.push(`${species(participant.id).name} gained ${amount} EXP.`);
+        logs.push(`${nameOf(participant)} gained ${amount} EXP.`);
         logs.push(...gainExp(participant, amount));
       }
       this.participants = [this.pi];
@@ -751,11 +773,10 @@ export class Battle {
             ? `You defeated ${this.trainer}!`
             : "You won the battle!",
         );
-      } else
-        logs.push(`${this.trainer} sent out ${species(this.enemy.id).name}!`);
+      } else logs.push(`${this.trainer} sent out ${nameOf(this.enemy)}!`);
     }
     if (a.hp <= 0) {
-      logs.push(`${species(a.id).name} fainted!`);
+      logs.push(`${nameOf(a)} fainted!`);
       // Knocking out the last opponent wins, even if your last Pokémon falls the same turn.
       if (!this.party.some((p) => p.hp > 0) && this.outcome !== "won") {
         this.outcome = "lost";

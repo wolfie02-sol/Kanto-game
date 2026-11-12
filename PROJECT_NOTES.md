@@ -114,3 +114,9 @@ Exact, time-based movement and idle positions; cached layouts; single-pointer D-
 - The Sound button turns music and effects on together and is remembered on this device. Audio starts on the first tap or key press, pauses in background tabs, and tracks crossfade as you move between areas and battles.
 - Knocking out the opponent's last Pokémon is now a win even if your last Pokémon faints the same turn (poison, burn, recoil, Explosion). Previously it became a loss: you lost 10% of your money, got no badge, and were sent back.
 - After a defeat with no Pokémon Center used yet, you return to the nearest town with a Center behind you, not Pallet Town. A double-knockout win carries your team to that Center with no penalty.
+
+## Version 2.6.0 — play-through fixes
+
+- Fishing and rare wild finds only produce evolved forms at believable levels: a level-8 Gyarados is now a Magikarp, an early Jolteon an Eevee, an Omastar below 40 an Omanyte. Previously every fishing spot, from Pallet Town on, could hook fully evolved Pokémon at levels 2–12. Hand-picked grass encounter tables are unchanged.
+- Battle text names a transformed Pokémon by its own species ("Ditto fainted!", not the copied name).
+- After becoming Champion, the journal title reads "Kanto Champion." instead of "The summit is waiting."

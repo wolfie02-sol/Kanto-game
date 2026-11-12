@@ -10,6 +10,8 @@ import {
   gainExp,
   expAt,
   species,
+  wildForm,
+  nameOf,
 } from "../dist/engine.mjs";
 setData(
   JSON.parse(
@@ -212,4 +214,29 @@ test("knocking out the last opponent wins even if your last Pokémon falls too",
   assert.equal(a.hp, 0);
   assert.equal(b.outcome, "won");
   assert.ok(!b.logs.some((l) => l.includes("Returning to the Pokémon Center")));
+});
+
+test("wild evolved forms only appear at believable levels", () => {
+  assert.equal(wildForm(130, 8), 129, "level-8 Gyarados is a Magikarp");
+  assert.equal(wildForm(130, 25), 130);
+  assert.equal(wildForm(135, 11), 133, "early Jolteon is an Eevee");
+  assert.equal(wildForm(139, 10), 138, "Omastar before 40 is Omanyte");
+  assert.equal(wildForm(3, 5), 1, "two stages back");
+  assert.equal(wildForm(3, 20), 2);
+  assert.equal(wildForm(25, 3), 25, "no pre-evolution in this generation");
+});
+
+test("battle text names a transformed Pokémon by its own species", () => {
+  let ditto = makeMon(132, 20),
+    foe = makeMon(74, 20);
+  ditto.moves = [{ id: 144, pp: 10 }];
+  foe.moves = [SPLASH];
+  let b = new Battle([foe], [ditto], null, fixed(0.5));
+  b.act({ type: "move", index: 0 }, bag());
+  assert.equal(ditto.id, 74);
+  assert.equal(nameOf(ditto), "Ditto");
+  ditto.hp = 1;
+  foe.moves = [{ id: 33, pp: 35 }];
+  b.act({ type: "move", index: 0 }, bag());
+  assert.ok(b.logs.includes("Ditto fainted!"), b.logs.join(" | "));
 });
