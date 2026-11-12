@@ -1685,3 +1685,63 @@ nav {
   outline: 2px solid #344f70;
   outline-offset: -6px;
 }
+/* Single-frame portraits: each character sheet is nine 16×32 frames. */
+.story-dialog .speaker-avatar {
+  width: 32px;
+  height: 64px;
+  flex: 0 0 32px;
+  background-size: 288px 64px;
+  background-position: 0 0;
+  align-self: center;
+}
+@media (max-width: 760px), (pointer: coarse) {
+  .story-dialog .speaker-avatar {
+    width: 24px;
+    height: 48px;
+    flex-basis: 24px;
+    background-size: 216px 48px;
+  }
+  .story-dialog .story-content p {
+    font-size: 18px;
+    line-height: 1.2;
+  }
+  .story-dialog .speaker-label {
+    font-size: 14px;
+  }
+  .story-dialog .story-next {
+    font-size: 16px;
+    min-height: 36px;
+  }
+  .battle-modal .battle-actions button {
+    font-size: 20px;
+    line-height: 1.1;
+  }
+  .battle-modal .battle-actions button small {
+    font-size: 14px;
+  }
+  .battle-modal .battle-log p {
+    font-size: 18px;
+    line-height: 1.2;
+  }
+}
+/* Stable palette across keyboard focus and sticky touch hover. */
+.battle-modal .battle-actions button:not(.battle-result),
+.battle-modal .battle-actions button:not(.battle-result):hover,
+.battle-modal .battle-actions button:not(.battle-result):focus,
+.battle-modal .battle-actions button:not(.battle-result):active {
+  background: #e6dfcc;
+  color: #354e53;
+  filter: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.battle-modal .battle-actions button.fight,
+.battle-modal .battle-actions button.fight:hover,
+.battle-modal .battle-actions button.fight:focus,
+.battle-modal .battle-actions button.fight:active {
+  background: #3e657b;
+  color: #fbefd2;
+}
+.battle-modal .battle-actions button:focus-visible {
+  outline: 2px solid #3e657b;
+  outline-offset: -4px;
+}

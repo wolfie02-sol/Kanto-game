@@ -1,7 +1,8 @@
-import { revealWild } from "./wild-encounter.mjs?v=2.6.1";
-import { createMotion } from "./motion.mjs?v=2.6.1";
-import { createMusic } from "./music.mjs?v=2.6.1";
-import { mountRewards } from "./rewards.mjs?v=2.6.1";
+import { snapshotBattle, restoreBattle } from "./battle-session.mjs?v=2.6.2";
+import { revealWild } from "./wild-encounter.mjs?v=2.6.2";
+import { createMotion } from "./motion.mjs?v=2.6.2";
+import { createMusic } from "./music.mjs?v=2.6.2";
+import { mountRewards } from "./rewards.mjs?v=2.6.2";
 import {
   setData,
   species,
@@ -16,8 +17,8 @@ import {
   freshVolatile,
   hasUsableMoves,
   wildForm,
-} from "./engine.mjs?v=2.6.1";
-import { ZONES, GYMS, LEAGUE, WATER, world } from "./world.mjs?v=2.6.1";
+} from "./engine.mjs?v=2.6.2";
+import { ZONES, GYMS, LEAGUE, WATER, world } from "./world.mjs?v=2.6.2";
 import {
   newAdventure,
   migrateAdventure,
@@ -26,12 +27,12 @@ import {
   roomWorld,
   sceneName,
   roomTransition,
-} from "./story.mjs?v=2.6.1";
+} from "./story.mjs?v=2.6.2";
 import {
   drawScene,
   loadCharacters,
   drawTitlePanorama,
-} from "./renderer.mjs?v=2.6.1";
+} from "./renderer.mjs?v=2.6.2";
 const $ = (s) => document.querySelector(s),
   root = $("#modalRoot"),
   canvas = $("#world"),
@@ -113,18 +114,7 @@ function save() {
   if (!state) return;
   try {
     let snapshot = { ...state };
-    if (battle)
-      snapshot.activeBattle = {
-        enemies: battle.enemies,
-        trainer: battle.trainer,
-        pi: battle.pi,
-        ei: battle.ei,
-        participants: battle.participants,
-        turns: battle.turns,
-        outcome: battle.outcome,
-        logs: battle.logs,
-        meta: battle.meta,
-      };
+    if (battle) snapshot.activeBattle = snapshotBattle(battle);
     else delete snapshot.activeBattle;
     localStorage.setItem(SAVE, JSON.stringify(snapshot));
     $("#saveState").textContent = "● SAVED ON THIS DEVICE";
@@ -739,7 +729,7 @@ function renderBattle() {
     "battle-modal",
   );
   let log = $(".battle-log");
-  log.scrollTop = 0;
+  log.scrollTop = log.scrollHeight;
 }
 function battleAct(action) {
   if (busy || motion.locked) return;
@@ -1392,14 +1382,19 @@ root.addEventListener("click", (e) => {
   if (a === "travel") {
     if (!state.visited.includes(i)) return;
     if (!state.party.length) return toast("Visit Oak before setting off.");
-    state.scene = "outdoor";
-    state.zone = i;
-    state.x = 14;
-    state.y = 17;
-    close();
-    render();
-    save();
-    return message("Welcome back to " + ZONES[i].name + ".");
+    return motion.scene("route", () => {
+      state.scene = "outdoor";
+      state.zone = i;
+      state.x = 14;
+      state.y = 17;
+      modal = "";
+      root.replaceChildren();
+      render();
+      save();
+      areaNotice(ZONES[i].name);
+      message("Welcome back to " + ZONES[i].name + ".");
+      canvas.focus({ preventScroll: true });
+    });
   }
   if (a === "buy") {
     let key = button.dataset.key,
@@ -1766,27 +1761,15 @@ try {
     message("Welcome back, trainer. Your story continues.");
     let saved = state.activeBattle;
     delete state.activeBattle;
-    if (
-      saved &&
-      Array.isArray(saved.enemies) &&
-      saved.enemies.length > 0 &&
-      saved.enemies.every(
-        (p) =>
-          species(p.id) &&
-          Array.isArray(p.moves) &&
-          p.moves.every((m) => moveData(m.id)),
-      ) &&
-      saved.pi >= 0 &&
-      saved.pi < state.party.length &&
-      saved.ei >= 0 &&
-      saved.ei < saved.enemies.length
-    ) {
-      battle = Object.assign(Object.create(Battle.prototype), saved, {
-        party: state.party,
-        rng: Math.random,
-      });
+    battle = restoreBattle(saved, state.party);
+    if (battle) {
       modal = "battle";
       renderBattle();
+    } else if (saved) {
+      state.party.forEach(freshVolatile);
+      toast(
+        "An interrupted battle could not be resumed. Your adventure is safe.",
+      );
     }
     if (!battle) titleScreen();
     canvas.focus({ preventScroll: true });

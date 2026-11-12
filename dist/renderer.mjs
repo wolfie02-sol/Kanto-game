@@ -1,4 +1,4 @@
-import { createWalker } from "./locomotion.mjs?v=2.6.1";
+import { createWalker } from "./locomotion.mjs?v=2.6.2";
 import {
   detailGround,
   buildingShadow,
@@ -7,9 +7,9 @@ import {
   detailFurniture,
   detailRoom,
   animateScenery,
-} from "./pixel-detail.mjs?v=2.6.1";
-import { world, ZONES } from "./world.mjs?v=2.6.1";
-import { roomWorld } from "./story.mjs?v=2.6.1";
+} from "./pixel-detail.mjs?v=2.6.2";
+import { world, ZONES } from "./world.mjs?v=2.6.2";
+import { roomWorld } from "./story.mjs?v=2.6.2";
 export const TILE = 24,
   VIEW_W = 384,
   VIEW_H = 288;

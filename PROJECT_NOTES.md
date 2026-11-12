@@ -1,3 +1,7 @@
+# Playthrough corrections — 2.6.2
+
+Fixed clipped/duplicated portraits, tiny mobile text, green battle-menu hover states, hidden final battle messages, instant map travel, and incomplete battle-save counters. Snapshot validation now rejects broken battle state and accepts older saves. Added a seeded battle stress check. See [playtest evidence](docs/PLAYTEST_2_6_2.md) for scope, regression tests and verification limits.
+
 # Combined GitHub release — 2.6.1
 
 - Reconciled main d141408 with claude/inspiring-tesla-5d4lcd 37dc4aa. Kept every nonconflicting change and resolved app/import, release and HTML conflicts by combining both branches.
