@@ -284,7 +284,6 @@ export function world(zone) {
     tiles = Array.from({ length: 22 }, (_, y) =>
       Array.from({ length: 30 }, (_, x) => {
         if (x === 0 || x === 29 || y === 0 || y === 21) return 1;
-        if ((x < 8 || x > 20) && y > 10 && y < 20) return 2;
         return 0;
       }),
     );
@@ -372,10 +371,6 @@ export function world(zone) {
       objs.push({ x: b.door[0], y: b.door[1], kind: b.kind });
     }
   } else {
-    for (let y = 2; y < 20; y++)
-      for (let x = 2; x < 28; x++)
-        if (x < 12 || x > 16)
-          tiles[y][x] = (x * 3 + y * 7 + zone) % 5 === 0 ? 0 : 2;
     if (z.kind === "cave") {
       for (let y = 2; y < 20; y++)
         for (let x = 2; x < 28; x++)
@@ -386,6 +381,32 @@ export function world(zone) {
         for (let x of [3, 7, 21, 25]) tiles[y][x] = 1;
     }
   }
+  // Small, deliberate encounter meadows with wide, safe gaps between them.
+  // Buildings, paths, trees and rocks always take precedence over habitat.
+  const patches = ["town", "island", "plateau"].includes(z.kind)
+    ? [
+        [9, 11, 3, 4],
+        [18, 11, 3, 4],
+        [9, 18, 3, 2],
+        [22, 18, 5, 2],
+      ]
+    : z.kind === "forest"
+      ? [
+          [4, 4, 6, 4],
+          [20, 4, 6, 4],
+          [7, 12, 5, 4],
+          [20, 16, 6, 3],
+        ]
+      : [
+          [3, 3, 5, 3],
+          [20, 4, 5, 3],
+          [7, 12, 5, 4],
+          [21, 16, 5, 3],
+        ];
+  for (const [left, top, width, height] of patches)
+    for (let y = top; y < top + height; y++)
+      for (let x = left; x < left + width; x++)
+        if (tiles[y][x] === 0) tiles[y][x] = 2;
   for (let y = 11; y <= 15; y++) for (let x = 1; x <= 5; x++) tiles[y][x] = 4;
   for (let x = 4; x <= 8; x++) tiles[10][x] = 3;
   objs.push(
@@ -585,13 +606,6 @@ export function drawMap(ctx, zone, player, tick = 0) {
     }
     if (o.kind === "trainer" || o.kind === "guide")
       drawPerson(ctx, o.x * 16, o.y * 16, true);
-    if (o.kind === "fish") {
-      ctx.fillStyle = "#b2a77e";
-      ctx.fillRect(o.x * 16, o.y * 16, 16, 16);
-      ctx.fillStyle = "#776e51";
-      ctx.fillRect(o.x * 16, o.y * 16 + 3, 16, 1);
-      ctx.fillRect(o.x * 16, o.y * 16 + 10, 16, 1);
-    }
   }
   ctx.fillStyle = "#294e3d55";
   ctx.beginPath();
