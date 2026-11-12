@@ -1,4 +1,4 @@
-import { createWalker } from "./locomotion.mjs?v=2.3.1";
+import { createWalker } from "./locomotion.mjs?v=2.4.0";
 import {
   detailGround,
   buildingShadow,
@@ -120,6 +120,30 @@ function flower(c, x, y, color = "#e5b0ae") {
   box(c, x + 3, y + 2, 3, 3, "#f9e9a2");
   box(c, x + 1, y + 7, 3, 1, "#6eac65");
 }
+/** Native pixel clumps replace the low, ambiguous atlas grass tile. */
+function drawTallGrass(c, x, y, cave) {
+  box(c, x, y, 24, 24, cave ? "#787c67" : "#4f9154");
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 3; col++) {
+      const n = noise(x + col, y + row, 71);
+      const xx = x + col * 8 + 2 + Math.floor(n * 3);
+      const yy = y + row * 8 + 1 + Math.floor(noise(y + col, x + row, 19) * 3);
+      const dark = cave ? "#626d57" : "#306c42";
+      const mid = cave ? "#94977a" : "#70ab5b";
+      const light = cave ? "#c1bea0" : "#abd17a";
+      // Separate forked tufts: no continuous crossbars or rows resembling tracks.
+      box(c, xx - 2, yy + 5, 5, 3, dark);
+      box(c, xx, yy + 1, 2, 6, mid);
+      box(c, xx + 1, yy, 1, 4, light);
+      box(c, xx - 2, yy + 2, 1, 3, mid);
+      box(c, xx - 1, yy + 4, 1, 3, mid);
+      box(c, xx - 3, yy + 1, 1, 2, light);
+      box(c, xx + 3, yy + 3, 1, 3, mid);
+      box(c, xx + 2, yy + 5, 1, 2, mid);
+      if (n > 0.4) box(c, xx + 4, yy + 2, 1, 2, light);
+    }
+  }
+}
 function ground(c, tiles, zone) {
   let z = ZONES[zone];
   for (let y = 0; y < 22; y++)
@@ -147,10 +171,6 @@ function ground(c, tiles, zone) {
         );
       if (t === 0 && images.ground && !cave)
         c.drawImage(images.ground, px, py, 24, 24);
-      if (t === 2 && images.grass && !cave) {
-        c.drawImage(images.grass, px, py, 24, 24);
-        continue;
-      }
       if (t === 4 && images.water) {
         c.drawImage(images.water, px, py, 24, 24);
         continue;
@@ -178,17 +198,7 @@ function ground(c, tiles, zone) {
             "#d8c18b",
           );
       }
-      if (t === 2) {
-        for (let row = 0; row < 3; row++)
-          for (let col = 0; col < 4; col++) {
-            let xx = px + col * 6 + (row % 2 ? 2 : 0),
-              yy = py + row * 8;
-            box(c, xx, yy + 3, 5, 4, cave ? "#8d8c74" : "#4c925c");
-            box(c, xx + 1, yy + 1, 1, 6, cave ? "#b9b394" : "#6aad65");
-            box(c, xx + 3, yy, 1, 5, cave ? "#c5bda0" : "#afd58c");
-            box(c, xx + 4, yy + 2, 1, 5, "#3a8253");
-          }
-      }
+      if (t === 2) drawTallGrass(c, px, py, cave);
       if (t === 4) {
         box(c, px, py, 24, 24, "#58a9ba");
         box(c, px, py + 3, 24, 1, "#72bdc8");
@@ -361,15 +371,6 @@ function drawOutdoorStatic(c, zone) {
       box(c, x + 21, y, 2, 24, "#cfba8e");
     }
   }
-  // Fences give the town lanes a sense of scale.
-  if (["town", "island"].includes(ZONES[zone].kind))
-    for (let x of [9, 10, 11, 17, 18, 19]) {
-      box(c, x * 24, 3 * 24 + 18, 21, 3, "#e9d9b1");
-      for (let xx of [1, 18]) {
-        box(c, x * 24 + xx, 3 * 24 + 9, 3, 16, "#99856a");
-        box(c, x * 24 + xx, 3 * 24 + 8, 3, 11, "#f4e5c0");
-      }
-    }
 }
 function baseRoomFurniture(c, d) {
   let x = d.x * 24,
@@ -775,15 +776,15 @@ export function drawScene(ctx, state, tick = 0) {
   if (!indoor) {
     const tiles = layout.tiles;
     if (tiles[s.y]?.[s.x] === 2) {
-      for (let i = 0; i < 4; i++)
-        box(
-          ctx,
-          Math.round(visual.x) + i * 6,
-          Math.round(visual.y) + 20,
-          3,
-          4,
-          "#4e975d",
-        );
+      // Foreground blades hide the trainer's boots, never the Pokémon ahead of time.
+      const rustle = visual.moving ? Math.round(Math.sin(tick / 45) * 2) : 0;
+      for (let i = 0; i < 5; i++) {
+        const x = Math.round(visual.x) + i * 5;
+        const y = Math.round(visual.y) + 17;
+        box(ctx, x, y + 3, 5, 4, "#2d7049");
+        box(ctx, x + 2 + rustle, y, 2, 7, "#80bc65");
+        box(ctx, x, y + 2, 1, 5, "#b2d77e");
+      }
     }
     if (s.zone === 3) {
       ctx.fillStyle = "#1b634d25";
