@@ -12,7 +12,7 @@ A Pokémon browser adventure with the original 151 Pokémon, a named-trainer ope
 
 The game has no runtime npm dependencies. Run `npm ci` only if you want the formatter. Windows users can run the same npm commands from PowerShell.
 
-Move with arrows/WASD; interact with E/Space; use the on-screen controls on a phone. Finish the opening and close any dialogue, then select **Packs & rewards** in the sidebar. Choose a supplied challenge team, defeat the guardians and rip your earned pack. Shards can be exchanged for a simulated random card; direct card wins and exchanges both appear under Card claims.
+Move with arrows/WASD; interact with E/Space; use the on-screen controls on a phone. Finish the opening and close any dialogue, then select **Packs & rewards** in the sidebar. Choose a supplied challenge team, defeat the guardians and rip your earned pack. Guardian wins climb a ten-tier ladder with better odds. Shards can be exchanged for a simulated random card; direct card wins and exchanges both appear under Card claims.
 
 ## Where to edit
 
@@ -23,9 +23,11 @@ Move with arrows/WASD; interact with E/Space; use the on-screen controls on a ph
 | Battle rules, damage, types, status, XP, evolution              | `dist/engine.mjs`                                      |
 | Towns, routes, encounters, Gyms and League teams                | `dist/world.mjs`                                       |
 | Camera and pixel-art drawing                                    | `dist/renderer.mjs`                                    |
+| Music: tracks, tempo and which track plays where                | `dist/music.mjs`, `musicTrack()` in `dist/app.mjs`     |
 | Page layout, close view, battle appearance                      | `dist/index.html`, `dist/style.css`, `dist/rework.css` |
 | Rewards screen and pack reveal                                  | `dist/rewards.mjs`, `dist/rewards.css`                 |
 | Pack tiers, sample odds, shard amounts and daily limit          | `config/rewards.mjs`                                   |
+| Recording fee income and checking bank-adjusted odds            | `scripts/rewards-bank.mjs` (`npm run rewards:bank`)    |
 | Trusted guardian challenges                                     | `server/rewards/bosses.mjs`                            |
 | Transactional rewards ledger and balances                       | `server/rewards/store.mjs`                             |
 | Collector Crypt development API                                 | `server/providers/collector-crypt.mjs`                 |
@@ -42,6 +44,7 @@ Move with arrows/WASD; interact with E/Space; use the on-screen controls on a ph
 | `npm run start:static`   | Adventure only; rewards require the full server                           |
 | `npm test`               | Battle, story, regression and rewards checks                              |
 | `npm run build`          | Check every JavaScript module for syntax errors                           |
+| `npm run rewards:bank`   | Show bank health and odds, or record a fee deposit (see docs/REWARDS.md)  |
 | `npm run audit:campaign` | Nine deterministic engine campaign simulations; not a browser playthrough |
 | `npm run format`         | Format source after `npm ci`                                              |
 | `npm run prepare-data`   | Re-download and package Pokémon data; needs Python/network                |
@@ -57,7 +60,7 @@ Reward accounts live in `.data/rewards.sqlite`, separately from adventure saves.
 - The included HTTP server listens on loopback only. Public hosting requires real authentication, HTTPS, rate limits, persistent database storage and operational monitoring.
 - Guardian fights run on the server; ordinary adventure saves are editable and cannot prove entitlement to real rewards. Active guardian fights expire after an hour or a server restart; already earned packs survive restarts.
 - Collector Crypt development calls require a separately issued development partner key and eligible machine code. No provider calls were made during development; the adapter has mocked contract tests.
-- Token-fee ingestion and income-driven odds are not implemented. Sample configuration stays fixed and disclosed. Real issuance remains disabled until funding, identity, custody and fulfillment requirements are complete.
+- Odds adapt to the rewards bank balance and recent fee income, but fees are entered by an operator with `npm run rewards:bank`; no live token-fee feed is connected. Each pack's odds are locked when earned. Real issuance remains disabled until funding, identity, custody and fulfillment requirements are complete.
 - Battle mechanics follow a declared simplified Generation I ruleset; some specialized cartridge effects remain incomplete. See `audit/AUDIT_REPORT.md`.
 - Campaign audits found excessive grinding in later progression. More story/trainer content and balance work remain.
 

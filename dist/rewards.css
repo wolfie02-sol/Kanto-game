@@ -76,6 +76,38 @@
 .reward-pack.champion {
   background: linear-gradient(140deg, #715931, #bb9752);
 }
+.reward-pack.ridge,
+.reward-pack.storm,
+.reward-pack.glacier {
+  background: linear-gradient(140deg, #2d5566, #5f98a8);
+}
+.reward-pack.legend {
+  background: linear-gradient(140deg, #344266, #6f73a1);
+}
+.reward-pack.ember {
+  background: linear-gradient(140deg, #6b3a2e, #b8674a);
+}
+.reward-pack.mythic {
+  background: linear-gradient(140deg, #4d2f66, #a06cc0);
+}
+.reward-ladder p {
+  margin: 6px 0;
+}
+.ladder-track {
+  height: 8px;
+  border-radius: 99px;
+  background: rgba(127, 140, 160, 0.3);
+  overflow: hidden;
+  margin: 8px 0;
+}
+.ladder-track i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #6fb38a, #d4aa6c);
+}
+.ladder-odds small {
+  opacity: 0.75;
+}
 .reward-pack > span {
   font-size: 36px;
 }

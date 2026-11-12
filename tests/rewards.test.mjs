@@ -8,23 +8,37 @@ import {
 } from "../server/providers/collector-crypt.mjs";
 import { BossAuthority } from "../server/rewards/bosses.mjs";
 import { moveData, effectiveness, species } from "../dist/engine.mjs";
-const setup = (options = {}) => new RewardStore(":memory:", options);
+// Ledger mechanics are checked with fixed odds; bank-adaptive odds have their own tests.
+const STATIC = {
+  ...REWARDS,
+  dynamicOdds: { ...REWARDS.dynamicOdds, enabled: false },
+};
+const TIER = {
+  id: "trail",
+  name: "Trail",
+  wins: 0,
+  level: 20,
+  cardBps: 100,
+  shards: 50,
+};
+const BIG = { ...TIER, id: "big", shards: 100 };
+const setup = (options = {}) =>
+  new RewardStore(":memory:", { config: STATIC, ...options });
 test("victory claims are idempotent and daily caps use server UTC", () => {
   let now = new Date("2026-11-11T23:59:59Z");
   const s = setup({ now: () => now });
-  const first = s.awardVictory("a", "battle", REWARDS.tiers[0]);
-  assert.equal(s.awardVictory("a", "battle", REWARDS.tiers[0]).id, first.id);
-  for (let i = 1; i < 10; i++)
-    s.awardVictory("a", `battle${i}`, REWARDS.tiers[0]);
-  assert.throws(() => s.awardVictory("a", "extra", REWARDS.tiers[0]), /Daily/);
+  const first = s.awardVictory("a", "battle", TIER);
+  assert.equal(s.awardVictory("a", "battle", TIER).id, first.id);
+  for (let i = 1; i < 10; i++) s.awardVictory("a", `battle${i}`, TIER);
+  assert.throws(() => s.awardVictory("a", "extra", TIER), /Daily/);
   now = new Date("2026-11-12T00:00:00Z");
-  s.awardVictory("a", "tomorrow", REWARDS.tiers[0]);
+  s.awardVictory("a", "tomorrow", TIER);
   assert.equal(s.snapshot("a").dailyUsed, 1);
   s.close();
 });
 test("concurrent/repeated opens persist one outcome and enforce ownership", async () => {
   const s = setup({ roll: () => 9999 }),
-    p = s.awardVictory("a", "b", REWARDS.tiers[0]);
+    p = s.awardVictory("a", "b", TIER);
   const values = await Promise.all(
     Array.from({ length: 20 }, () =>
       Promise.resolve().then(() => s.open("a", p.id)),
@@ -38,25 +52,22 @@ test("concurrent/repeated opens persist one outcome and enforce ownership", asyn
   s.close();
 });
 test("card boundary, atomic funding reservation, depleted reserve and no rerolls", () => {
-  const config = { ...REWARDS, initialBudgetCents: 5000, initialInventory: 1 };
+  const config = { ...STATIC, initialBudgetCents: 5000, initialInventory: 1 };
   const s = setup({ config, roll: () => 99 });
-  const p = s.awardVictory("a", "b", REWARDS.tiers[0]);
-  assert.throws(() => s.awardVictory("a", "c", REWARDS.tiers[0]), /depleted/);
+  const p = s.awardVictory("a", "b", TIER);
+  assert.throws(() => s.awardVictory("a", "c", TIER), /depleted/);
   assert.equal(s.open("a", p.id).kind, "card");
   assert.equal(s.snapshot("a").jobs.length, 1);
   assert.deepEqual(s.open("a", p.id), s.open("a", p.id));
   s.close();
   const t = setup({ roll: () => 100 });
-  assert.equal(
-    t.open("a", t.awardVictory("a", "d", REWARDS.tiers[0]).id).kind,
-    "shards",
-  );
+  assert.equal(t.open("a", t.awardVictory("a", "d", TIER).id).kind, "shards");
   t.close();
 });
 test("redemption is atomic, retries are idempotent, failures preserve entitlement", async () => {
   const s = setup({ roll: () => 9999 });
   for (let i = 0; i < 10; i++)
-    s.open("a", s.awardVictory("a", `b${i}`, REWARDS.tiers[2]).id);
+    s.open("a", s.awardVictory("a", `b${i}`, BIG).id);
   const [one, two] = await Promise.all(
     [1, 2].map(() =>
       Promise.resolve().then(() => s.redeem("a", "same-request")),
@@ -89,7 +100,7 @@ test("redemption is atomic, retries are idempotent, failures preserve entitlemen
 test("insufficient inventory never spends shards; invalid odds fail validation", () => {
   const s = setup({ roll: () => 9999 });
   for (let i = 0; i < 10; i++)
-    s.open("a", s.awardVictory("a", `b${i}`, REWARDS.tiers[2]).id);
+    s.open("a", s.awardVictory("a", `b${i}`, BIG).id);
   s.db.exec("UPDATE treasury SET inventory=0");
   assert.throws(() => s.redeem("a", "redemption-key"), /unavailable/);
   assert.equal(s.snapshot("a").shards, 1000);
@@ -220,11 +231,11 @@ test("database restart preserves settled packs and pending claims", async () => 
   const dir = mkdtempSync(join(tmpdir(), "kanto-reward-"));
   const db = join(dir, "rewards.sqlite");
   try {
-    let s = new RewardStore(db, { roll: () => 0 });
-    const p = s.awardVictory("a", "b", REWARDS.tiers[0]);
+    let s = new RewardStore(db, { config: STATIC, roll: () => 0 });
+    const p = s.awardVictory("a", "b", TIER);
     const result = s.open("a", p.id);
     s.close();
-    s = new RewardStore(db, { roll: () => 9999 });
+    s = new RewardStore(db, { config: STATIC, roll: () => 9999 });
     assert.deepEqual(s.open("a", p.id), result);
     assert.equal(s.snapshot("a").jobs[0].status, "pending");
     s.close();

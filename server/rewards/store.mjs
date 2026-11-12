@@ -23,7 +23,18 @@ export class RewardStore {
       CREATE TABLE IF NOT EXISTS packs(id TEXT PRIMARY KEY, owner TEXT REFERENCES accounts(id), battle TEXT UNIQUE, day TEXT, config TEXT, tier TEXT, odds INTEGER, shards INTEGER, state TEXT DEFAULT 'unopened', result TEXT);
       CREATE TABLE IF NOT EXISTS jobs(id TEXT PRIMARY KEY, owner TEXT REFERENCES accounts(id), source TEXT UNIQUE, status TEXT DEFAULT 'pending', result TEXT, error TEXT);
       CREATE TABLE IF NOT EXISTS ledger(id INTEGER PRIMARY KEY, owner TEXT, event TEXT, reference TEXT, delta INTEGER, created TEXT);
+      CREATE TABLE IF NOT EXISTS deposits(reference TEXT PRIMARY KEY, kind TEXT NOT NULL CHECK(kind IN ('fee','topup')), cents INTEGER NOT NULL CHECK(cents>=0), cards INTEGER NOT NULL CHECK(cards>=0), note TEXT, created TEXT NOT NULL);
+      CREATE INDEX IF NOT EXISTS deposits_created ON deposits(kind, created);
     `);
+    // Older databases: record how each pack's odds were bound.
+    const columns = this.db
+      .prepare("PRAGMA table_info(packs)")
+      .all()
+      .map((c) => c.name);
+    if (!columns.includes("base_bps"))
+      this.db.exec("ALTER TABLE packs ADD COLUMN base_bps INTEGER");
+    if (!columns.includes("funding"))
+      this.db.exec("ALTER TABLE packs ADD COLUMN funding TEXT");
     this.db
       .prepare("INSERT OR IGNORE INTO treasury VALUES(1,?,?)")
       .run(config.initialBudgetCents, config.initialInventory);
@@ -57,6 +68,113 @@ export class RewardStore {
     const a = this.account(id);
     return this.config.tiers.filter((t) => t.wins <= a.wins).at(-1);
   }
+  nextTier(id) {
+    const a = this.account(id);
+    return this.config.tiers.find((t) => t.wins > a.wins) || null;
+  }
+  treasury() {
+    return this.db.prepare("SELECT * FROM treasury WHERE id=1").get();
+  }
+  /** Bank health right now: how much spendable funding exists and how much fee income arrived recently. */
+  bank() {
+    const d = this.config.dynamicOdds,
+      t = this.treasury();
+    if (!d?.enabled)
+      return { enabled: false, multiplier: 1, available: t.available };
+    const since = new Date(
+      this.now().getTime() - d.windowDays * 86400000,
+    ).toISOString();
+    const fees =
+      this.db
+        .prepare(
+          "SELECT COALESCE(SUM(cents),0) AS n FROM deposits WHERE kind='fee' AND created>=?",
+        )
+        .get(since).n || 0;
+    const cap = (n) => Math.min(d.maxMultiplier, n);
+    const reserveRatio =
+      t.available / (d.targetReserveCards * this.config.cardCostCents);
+    const feeRatio = fees / d.targetWindowFeeCents;
+    const raw =
+      d.reserveWeight * cap(reserveRatio) +
+      (1 - d.reserveWeight) * cap(feeRatio);
+    const multiplier = Math.min(
+      d.maxMultiplier,
+      Math.max(d.minMultiplier, raw),
+    );
+    return {
+      enabled: true,
+      multiplier: Math.round(multiplier * 1000) / 1000,
+      reserveRatio: Math.round(reserveRatio * 1000) / 1000,
+      feeRatio: Math.round(feeRatio * 1000) / 1000,
+      windowFeeCents: fees,
+      windowDays: d.windowDays,
+      available: t.available,
+      inventory: t.inventory,
+    };
+  }
+  /** Card chance a pack of this tier would receive if it were earned now. */
+  oddsFor(tier, bank = this.bank()) {
+    if (!bank.enabled) return tier.cardBps;
+    return Math.min(
+      this.config.dynamicOdds.maxCardBps,
+      Math.max(0, Math.round(tier.cardBps * bank.multiplier)),
+    );
+  }
+  /** Operator-only: record settled fee income or a manual top-up. Idempotent by reference. */
+  deposit({ reference, cents = 0, cards = 0, kind = "fee", note = "" }) {
+    if (
+      typeof reference !== "string" ||
+      !/^[A-Za-z0-9:_.-]{4,128}$/.test(reference)
+    )
+      throw Error("Deposit reference must be 4–128 letters, digits or :_.-");
+    if (!["fee", "topup"].includes(kind))
+      throw Error("Deposit kind must be fee or topup");
+    if (
+      !Number.isSafeInteger(cents) ||
+      cents < 0 ||
+      !Number.isSafeInteger(cards) ||
+      cards < 0
+    )
+      throw Error("Deposit amounts must be whole, non-negative numbers");
+    if (!cents && !cards) throw Error("Deposit is empty");
+    return this.transaction(() => {
+      const old = this.db
+        .prepare("SELECT * FROM deposits WHERE reference=?")
+        .get(reference);
+      if (old) {
+        if (old.cents !== cents || old.cards !== cards || old.kind !== kind)
+          throw Error("Reference already used for a different deposit");
+        return { ...old, duplicate: true };
+      }
+      const created = this.now().toISOString();
+      this.db
+        .prepare(
+          "INSERT INTO deposits(reference,kind,cents,cards,note,created) VALUES(?,?,?,?,?,?)",
+        )
+        .run(
+          reference,
+          kind,
+          cents,
+          cards,
+          String(note).slice(0, 200),
+          created,
+        );
+      this.db
+        .prepare(
+          "UPDATE treasury SET available=available+?, inventory=inventory+? WHERE id=1",
+        )
+        .run(cents, cards);
+      this.event("operator", `deposit-${kind}`, reference, cents);
+      return {
+        reference,
+        kind,
+        cents,
+        cards,
+        created,
+        duplicate: false,
+      };
+    });
+  }
   day() {
     return this.now().toISOString().slice(0, 10);
   }
@@ -85,7 +203,9 @@ export class RewardStore {
       this.account(owner);
       this.canIssue(owner);
       const id = randomUUID(),
-        c = this.config;
+        c = this.config,
+        bank = this.bank(),
+        odds = this.oddsFor(tier, bank);
       // Reserve one whole card per unopened pack (stronger than expected-value backing).
       this.db
         .prepare(
@@ -94,7 +214,7 @@ export class RewardStore {
         .run(c.cardCostCents);
       this.db
         .prepare(
-          "INSERT INTO packs(id,owner,battle,day,config,tier,odds,shards) VALUES(?,?,?,?,?,?,?,?)",
+          "INSERT INTO packs(id,owner,battle,day,config,tier,odds,shards,base_bps,funding) VALUES(?,?,?,?,?,?,?,?,?,?)",
         )
         .run(
           id,
@@ -103,8 +223,14 @@ export class RewardStore {
           this.day(),
           c.version,
           tier.id,
-          tier.cardBps,
+          odds,
           tier.shards,
+          tier.cardBps,
+          JSON.stringify({
+            multiplier: bank.multiplier,
+            reserveRatio: bank.reserveRatio ?? null,
+            feeRatio: bank.feeRatio ?? null,
+          }),
         );
       this.db.prepare("UPDATE accounts SET wins=wins+1 WHERE id=?").run(owner);
       this.event(owner, "pack-earned", id);
@@ -215,11 +341,29 @@ export class RewardStore {
     }
   }
   snapshot(owner) {
-    const a = this.account(owner);
+    const a = this.account(owner),
+      tier = this.tier(owner),
+      bank = this.bank();
     return {
       mode: "sandbox",
       ...a,
-      tier: this.tier(owner),
+      tier,
+      nextTier: this.nextTier(owner),
+      ladder: this.config.tiers.map(({ id, name, wins, cardBps, shards }) => ({
+        id,
+        name,
+        wins,
+        cardBps,
+        shards,
+      })),
+      // What the NEXT earned pack would get right now; earned packs keep their own odds.
+      nextOdds: {
+        bps: this.oddsFor(tier, bank),
+        baseBps: tier.cardBps,
+        multiplier: bank.multiplier,
+        reserveRatio: bank.reserveRatio ?? null,
+        feeRatio: bank.feeRatio ?? null,
+      },
       dailyUsed: this.issuedToday(owner),
       dailyLimit: this.config.dailyLimit,
       configVersion: this.config.version,
@@ -227,7 +371,11 @@ export class RewardStore {
       packs: this.db
         .prepare("SELECT * FROM packs WHERE owner=? ORDER BY rowid DESC")
         .all(owner)
-        .map((p) => ({ ...p, result: p.result ? JSON.parse(p.result) : null })),
+        .map((p) => ({
+          ...p,
+          result: p.result ? JSON.parse(p.result) : null,
+          funding: p.funding ? JSON.parse(p.funding) : null,
+        })),
       jobs: this.db
         .prepare("SELECT * FROM jobs WHERE owner=? ORDER BY rowid DESC")
         .all(owner)

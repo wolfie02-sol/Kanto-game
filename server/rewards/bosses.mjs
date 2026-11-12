@@ -65,6 +65,11 @@ export class BossAuthority {
       f.pack = this.store.awardVictory(owner, f.id, f.tier).id;
     return this.view(f);
   }
+  /** The owner's unfinished challenge, so a reloaded page can resume it. */
+  current(owner) {
+    const f = this.fights.get(owner);
+    return f ? this.view(f) : null;
+  }
   abandon(owner) {
     this.fights.delete(owner);
   }

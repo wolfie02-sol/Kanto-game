@@ -1,6 +1,7 @@
-import { revealWild } from "./wild-encounter.mjs?v=2.4.2";
-import { createMotion } from "./motion.mjs?v=2.4.2";
-import { mountRewards } from "./rewards.mjs";
+import { revealWild } from "./wild-encounter.mjs?v=2.6.1";
+import { createMotion } from "./motion.mjs?v=2.6.1";
+import { createMusic } from "./music.mjs?v=2.6.1";
+import { mountRewards } from "./rewards.mjs?v=2.6.1";
 import {
   setData,
   species,
@@ -14,8 +15,9 @@ import {
   validateSave,
   freshVolatile,
   hasUsableMoves,
-} from "./engine.mjs";
-import { ZONES, GYMS, LEAGUE, WATER, world } from "./world.mjs?v=2.4.2";
+  wildForm,
+} from "./engine.mjs?v=2.6.1";
+import { ZONES, GYMS, LEAGUE, WATER, world } from "./world.mjs?v=2.6.1";
 import {
   newAdventure,
   migrateAdventure,
@@ -24,12 +26,12 @@ import {
   roomWorld,
   sceneName,
   roomTransition,
-} from "./story.mjs";
+} from "./story.mjs?v=2.6.1";
 import {
   drawScene,
   loadCharacters,
   drawTitlePanorama,
-} from "./renderer.mjs?v=2.4.2";
+} from "./renderer.mjs?v=2.6.1";
 const $ = (s) => document.querySelector(s),
   root = $("#modalRoot"),
   canvas = $("#world"),
@@ -47,6 +49,8 @@ let state = null,
   saveTimer,
   toastTimer;
 const SAVE = "kanto-journey-v1";
+const SOUND_PREF = "kanto-sound";
+const music = createMusic();
 const motion = createMotion({
   screen: $("#screen"),
   modalRoot: root,
@@ -221,7 +225,9 @@ function render() {
     let g = GYMS[next];
     $("#questTitle").textContent = g
       ? `Next stop: the ${g.badge} Badge.`
-      : "The summit is waiting.";
+      : state.champion
+        ? "Kanto Champion."
+        : "The summit is waiting.";
     $("#questText").textContent = g
       ? `Train your team, explore the region, and challenge ${g.name} when you’re ready.`
       : state.champion
@@ -477,6 +483,7 @@ function interact() {
           ]);
     case "center":
       state.party.forEach(heal);
+      music.jingle("heal");
       state.lastCenter = state.zone;
       save();
       render();
@@ -517,6 +524,7 @@ function interact() {
     }
     case "house":
       state.party.forEach(heal);
+      music.jingle("heal");
       state.bag.ball += state.defeated.includes(`rest-${state.zone}`) ? 0 : 3;
       if (!state.defeated.includes(`rest-${state.zone}`))
         state.defeated.push(`rest-${state.zone}`);
@@ -637,6 +645,8 @@ function encounter(fish = false) {
     if (accessible.length)
       id = accessible[Math.floor(Math.random() * accessible.length)].id;
   }
+  // Fishing and rare finds: evolved forms only appear at believable levels.
+  id = wildForm(id, level);
   if ([144, 145, 146, 150, 151].includes(id) && !state.champion) {
     id = z.pool[0];
   }
@@ -760,15 +770,28 @@ function battleAct(action) {
     busy = false;
   }, 220);
 }
-function recover() {
+// The last Pokémon Center used, or else the nearest town with one on the way back.
+function centerZone() {
+  if (state.lastCenter !== undefined) return state.lastCenter;
+  for (let z = state.zone; z > 0; z--)
+    if (["town", "island", "plateau"].includes(ZONES[z].kind)) return z;
+  return 0;
+}
+function recover(penalty = true) {
   state.party.forEach(heal);
   state.scene = "outdoor";
-  state.zone = state.lastCenter ?? 0;
+  state.zone = centerZone();
   state.x = 14;
   state.y = 17;
-  state.money = Math.floor(state.money * 0.9);
-  state.league = 0;
-  message("Your team has recovered. Take a breath, then try again.");
+  if (penalty) {
+    state.money = Math.floor(state.money * 0.9);
+    state.league = 0;
+  }
+  message(
+    penalty
+      ? `Your team has recovered at the ${ZONES[state.zone].name} Pokémon Center. Take a breath, then try again.`
+      : `What a finish! Your exhausted team was carried to the ${ZONES[state.zone].name} Pokémon Center to rest.`,
+  );
 }
 function finishBattle() {
   if (!battle?.outcome || motion.locked) return;
@@ -861,6 +884,8 @@ function settleBattle() {
     }
   }
   if (b.outcome === "lost") recover();
+  // A win where your last Pokémon also fell: keep the win, then rest at a Center.
+  else if (!state.party.some((p) => p.hp > 0)) recover(false);
   state.party.forEach(freshVolatile);
   battle = null;
   modal = "";
@@ -1025,6 +1050,15 @@ function captureNames() {
   draftName = $("#nameInput")?.value ?? draftName;
   draftRival = $("#rivalInput")?.value ?? draftRival;
 }
+// Sideways phones: bring the whole game view on screen when play starts.
+function showGameOnPhone() {
+  if (
+    matchMedia(
+      "(max-height: 500px) and (orientation: landscape) and (pointer: coarse)",
+    ).matches
+  )
+    $("#screen").scrollIntoView({ block: "start" });
+}
 function beginStory() {
   if (motion.locked) return;
   return motion.scene("story", () => {
@@ -1039,6 +1073,7 @@ function beginStory() {
     root.innerHTML = "";
     storyLines = [];
     pressed.clear();
+    showGameOnPhone();
     render();
     save();
     message("Morning sunlight spills across the floor.");
@@ -1202,6 +1237,7 @@ function talkMom() {
     );
   } else {
     state.party.forEach(heal);
+    music.jingle("heal");
     render();
     save();
     say([
@@ -1273,6 +1309,7 @@ root.addEventListener("click", (e) => {
     return motion.scene("story", () => {
       modal = "";
       root.innerHTML = "";
+      showGameOnPhone();
       render();
       resumeStory();
       if (!storyLines.length) learnPending();
@@ -1545,11 +1582,23 @@ $("#touchB").onclick = () => {
   if (!motion.locked && !battle && !storyLines.length)
     modal ? close() : state ? settings() : titleScreen();
 };
-$("#soundBtn").onclick = () => {
-  sound = !sound;
+function setSound(on) {
+  sound = on;
   $("#soundBtn").textContent = sound ? "♫ Sound on" : "♫ Sound off";
+  $("#soundBtn").setAttribute("aria-pressed", String(sound));
+  music.setEnabled(sound);
+  try {
+    localStorage.setItem(SOUND_PREF, sound ? "on" : "off");
+  } catch {}
+}
+$("#soundBtn").onclick = () => {
+  setSound(!sound);
   beep(660);
 };
+try {
+  // Remembered choice; audio itself starts on the first tap or key press.
+  if (localStorage.getItem(SOUND_PREF) === "on") setSound(true);
+} catch {}
 document.querySelectorAll("[data-view]").forEach(
   (b) =>
     (b.onclick = () => {
@@ -1602,17 +1651,25 @@ document.addEventListener("keydown", (e) => {
     }
     return;
   }
-  if (motion.locked || document.querySelector("#rewardsDialog[open]")) return;
+  if (document.querySelector("#rewardsDialog[open]")) return;
   if (["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName)) return;
+  // Enter/Space on a menu button or keyboard-focused control must press that control.
+  const control = e.target.closest?.("button, a[href], summary");
+  if (
+    [" ", "Enter"].includes(e.key) &&
+    control &&
+    (root.contains(control) || control.matches(":focus-visible"))
+  )
+    return;
+  const actionKey = [" ", "Enter", "e", "E"].includes(e.key);
+  // Stop arrows and Space from scrolling the page, even during a scene transition.
+  if (keys[e.key] || actionKey) e.preventDefault();
+  if (motion.locked) return;
   if (keys[e.key]) {
-    e.preventDefault();
     pressed.add(keys[e.key]);
     move(keys[e.key]);
   }
-  if ([" ", "Enter", "e", "E"].includes(e.key)) {
-    e.preventDefault();
-    if (!e.repeat) interact();
-  }
+  if (actionKey && !e.repeat) interact();
   if (e.key === "Escape") {
     if (motion.locked || battle || storyLines.length) return;
     modal ? close() : state ? settings() : startModal();
@@ -1656,8 +1713,25 @@ document.querySelectorAll("[data-dir]").forEach((button) => {
       };
 });
 window.addEventListener("beforeunload", save);
+// Which background track fits what is on screen right now.
+function musicTrack() {
+  if (!state || modal === "title" || modal === "setup") return "home";
+  if (battle) {
+    if (["won", "caught"].includes(battle.outcome)) return "victory";
+    if (battle.outcome) return null;
+    return battle.meta?.kind === "wild" ? "battle" : "boss";
+  }
+  if (state.scene !== "outdoor" || state.zone === 0) return "home";
+  let kind = ZONES[state.zone].kind;
+  return kind === "route"
+    ? "route"
+    : kind === "forest" || kind === "cave"
+      ? "forest"
+      : "town";
+}
 function loop(t) {
   if (pressed.size) move([...pressed].at(-1));
+  music.play(musicTrack());
   if (state) canvas.setAttribute("data-position", `${state.x},${state.y}`);
   drawScene(ctx, state, t);
   requestAnimationFrame(loop);
@@ -1723,21 +1797,26 @@ try {
   console.error(e);
 }
 
-mountRewards({
-  data: () => window.gameData,
-  canOpen: () => {
-    if (motion.locked || battle || modal || storyLines.length) {
-      toast("Finish your current dialogue or battle first.");
-      return false;
-    }
-    return true;
-  },
-});
+// The existing reward authority only accepts local development hosts.
+const rewardsAvailable = ["localhost", "127.0.0.1", "[::1]"].includes(
+  location.hostname,
+);
+if (rewardsAvailable)
+  mountRewards({
+    data: () => window.gameData,
+    canOpen: () => {
+      if (motion.locked || battle || modal || storyLines.length) {
+        toast("Finish your current dialogue or battle first.");
+        return false;
+      }
+      return true;
+    },
+  });
 
 function openCollector() {
   if (motion.locked || battle || storyLines.length) return;
   const rewards = $("#rewardsBtn");
-  if (rewards) {
+  if (rewardsAvailable && rewards) {
     if (modal) close();
     rewards.click();
     return;

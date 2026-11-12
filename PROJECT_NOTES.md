@@ -1,3 +1,11 @@
+# Combined GitHub release — 2.6.1
+
+- Reconciled main d141408 with claude/inspiring-tesla-5d4lcd 37dc4aa. Kept every nonconflicting change and resolved app/import, release and HTML conflicts by combining both branches.
+- Includes original chiptune soundtrack, music preference/gesture unlock, battle and wild evolution fixes, defeat/recovery corrections, keyboard controls, landscape touch controls, ten-tier sandbox rewards, bank-adaptive odds and resumable guardian challenges.
+- Retains smaller grass patches, removed fishing rails, selected-species encounter reveal, bounded transitions, and stable gold victory buttons.
+- Hosted client and GitHub client now use identical files. Runtime host detection keeps the loopback-only Node reward authority available locally while the public static Site explains its development status. No live cards, token fee ingestion or public reward backend are configured.
+- Validation: full combined automated suite and nine campaign simulations passed. Browser checks covered sound activation and remembered preference, saved adventure reload, guardian challenge resume after page reload, Enter activation of Continue, and touch movement in a 390px phone preview. No game-script errors were observed; no physical-phone or audio-listening claim is made. All 402 tracked files matched the Site source before hosting-only configuration.
+
 # Victory button correction — 2.4.2
 
 - Battle completion actions now use `battle-result` instead of the generic `primary` class. A scoped warm-gold/navy palette covers normal, hover, press and focus states; inherited green hover colors and decorative pointer arrows no longer apply. Keyboard focus remains visible.
@@ -108,3 +116,38 @@ Dark collector display theme, native pixel-art town panorama, cached foliage/bui
 ## Version 2.3.1 — phone jitter and invisible fades
 
 Exact, time-based movement and idle positions; cached layouts; single-pointer D-pad. Frame-driven gentle opacity fades remain in reduced-motion mode. Scene content paints under cover; encounters and battle exits cover dialogs. Existing saves and gameplay rules remain compatible. See docs/MOTION_AND_PHONES.md for test scope and remaining device verification.
+
+## Version 2.3.2 — battle fixes and keyboard menus
+
+- Metronome or Mirror Move that becomes Transform no longer replaces the user's real moveset after battle.
+- A transformed Pokémon earns EXP, learns moves and evolves as its own species rather than the copied one.
+- The opponent no longer picks a disabled move (it used to turn into Struggle). Sending in a replacement after a faint no longer gives the opponent an extra poison/burn/Leech Seed tick. Escape odds rise once per attempt.
+- Counter only answers damage taken this turn. Self-Destruct and Explosion faint the user even on a miss. Recover, Soft-Boiled and Rest fail at full HP.
+- Status moves, Leech Seed and slower OHKO moves now say "But it failed!" instead of failing silently. Multi-hit moves report the hits that landed.
+- Enter/Space activate focused menu buttons. Arrow keys and Space no longer scroll the page during scene transitions.
+- The rewards API rejects JSON bodies that are not objects. Browser modules share one cache version, so `motion.mjs` loads once.
+- 13 engine regression checks in `tests/engine-regressions.test.mjs`. All nine deterministic campaigns still complete with these fixes; pacing is unchanged (about 1,800–2,200 wild battles).
+
+## Version 2.4.0 — reward ladder and bank-adaptive odds
+
+- The guardian ladder grows from 3 to 10 tiers (Trail at 0 wins to Mythic at 180). Base card chance rises from 1% to 3.75%, shards from 50 to 110, guardian level from 20 to 75.
+- A pack's card chance is its base chance × a bank multiplier (×0.5–×2, capped at 10%), calculated from the spendable bank balance and the last 7 days of fee deposits. It is locked when the pack is earned and stored with the pack.
+- `npm run rewards:bank` shows bank health, or records idempotent `fee`/`topup` deposits. There is no web endpoint for deposits.
+- The rewards panel shows rank, progress to the next tier and the next pack's odds. Older reward databases are upgraded in place; existing packs keep their odds.
+- Config `sandbox-v2`. The adventure's grind-heavy pacing is intentionally unchanged.
+
+## Version 2.5.0 — original soundtrack and post-battle fixes
+
+- Original chiptune music written for this game (not taken from any existing soundtrack): home, town, route, forest/cave, wild battle and trainer/Gym/League battle loops, plus victory and healing jingles. Two pulse voices, a triangle bass and noise drums synthesized with Web Audio; no audio files.
+- The Sound button turns music and effects on together and is remembered on this device. Audio starts on the first tap or key press, pauses in background tabs, and tracks crossfade as you move between areas and battles.
+- Knocking out the opponent's last Pokémon is now a win even if your last Pokémon faints the same turn (poison, burn, recoil, Explosion). Previously it became a loss: you lost 10% of your money, got no badge, and were sent back.
+- After a defeat with no Pokémon Center used yet, you return to the nearest town with a Center behind you, not Pallet Town. A double-knockout win carries your team to that Center with no penalty.
+
+## Version 2.6.0 — play-through fixes
+
+- Fishing and rare wild finds only produce evolved forms at believable levels: a level-8 Gyarados is now a Magikarp, an early Jolteon an Eevee, an Omastar below 40 an Omanyte. Previously every fishing spot, from Pallet Town on, could hook fully evolved Pokémon at levels 2–12. Hand-picked grass encounter tables are unchanged.
+- Battle text names a transformed Pokémon by its own species ("Ditto fainted!", not the copied name).
+- After becoming Champion, the journal title reads "Kanto Champion." instead of "The summit is waiting."
+- Reopening the rewards panel after a reload shows the guardian challenge still running on the server. Previously, choosing a new partner silently resumed the old fight.
+- Phones held sideways: the map fits the screen height and the D-pad and A/B buttons float over its sides, so you no longer scroll down to reach the controls. Continuing or starting a game scrolls the map into view.
+- Touch screens wider than 760px (larger phones held sideways, tablets) now get the proper D-pad cross and the themed round A/B buttons, instead of a scrambled grid of blank squares.

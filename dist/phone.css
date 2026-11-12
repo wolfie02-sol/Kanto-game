@@ -499,3 +499,82 @@ select:focus-visible {
   background: #14232d;
   pointer-events: none;
 }
+/* Phone held sideways: the map fits the screen height and the D-pad and
+   A/B buttons float over its sides, so no scrolling is needed to play. */
+@media (max-height: 500px) and (orientation: landscape) and (pointer: coarse) {
+  .game-column .screen {
+    height: calc(100dvh - 20px) !important;
+    width: auto;
+    max-width: 100%;
+    margin-inline: auto;
+  }
+  .touch-controls {
+    position: fixed !important;
+    left: 0;
+    right: 0;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    z-index: 15;
+    padding: 0 max(12px, env(safe-area-inset-right)) 0
+      max(12px, env(safe-area-inset-left));
+    background: none;
+    box-shadow: none;
+    pointer-events: none;
+  }
+  .touch-controls > * {
+    pointer-events: auto;
+    opacity: 0.88;
+  }
+  #touchA {
+    margin-left: auto;
+  }
+}
+/* Arrow positions for every screen that shows touch controls, not only narrow
+   ones: wide phones held sideways and tablets were getting a scrambled D-pad. */
+@media (max-width: 760px),
+  (pointer: coarse),
+  (max-height: 500px) and (orientation: landscape) {
+  .dpad button[data-dir="up"] {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .dpad button[data-dir="left"] {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .dpad button[data-dir="down"] {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .dpad button[data-dir="right"] {
+    grid-column: 3;
+    grid-row: 2;
+  }
+  /* Same look as the narrow-screen theme (collector-theme.css), which wins there. */
+  .dpad button {
+    background: linear-gradient(#354b63, #293a50);
+    color: #c2d6e4;
+    border: 1px solid #566e89;
+    box-shadow: 0 2px #101d2c;
+    border-radius: 7px;
+  }
+  #touchA,
+  #touchB {
+    border-radius: 50%;
+    font-weight: bold;
+  }
+  #touchA {
+    background: linear-gradient(#f2bd7d, #d99461);
+    color: #2b3547;
+    box-shadow: 0 4px #895a42;
+  }
+  #touchB {
+    background: linear-gradient(#739bb8, #4b718e);
+    color: #f0e9d4;
+    box-shadow: 0 4px #2d4a63;
+  }
+  #touchA small,
+  #touchB small {
+    display: block;
+    margin-top: 2px;
+  }
+}

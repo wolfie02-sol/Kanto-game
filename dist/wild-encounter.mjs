@@ -1,4 +1,4 @@
-import { prefersReducedMotion } from "./motion.mjs?v=2.4.0";
+import { prefersReducedMotion } from "./motion.mjs?v=2.6.1";
 
 /** Presentation uses the already-selected opponent; it never rolls another encounter. */
 export function revealFrame(progress, reduced = false) {
