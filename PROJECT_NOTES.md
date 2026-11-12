@@ -1,3 +1,12 @@
+# Current update — tall grass encounters (v2.4.0)
+
+- Native pixel grass clumps and foreground boot occlusion make encounter habitat obvious. No wild Pokémon are drawn on the map. Existing grass-only encounter rolls and fishing pools remain intact.
+- A selected wild opponent rustles out as a silhouette, reveals its actual sprite/name/level, then enters the existing battle transition. Input remains locked through the entire sequence. Reduced motion uses opacity and a still reveal. Background-tab timeout prevents stuck controls.
+- Removed floating decorative fence strips from town maps; the fishing platform remains beside the pond.
+- Save format, capture rules, progression and reward settlement unchanged.
+- Interactive QA: 390px phone preview, touch movement in Route 1 grass, silhouette → Oddish Lv.5 → same battle sprite; successful Poké Ball capture and return to map. Desktop grass inspected. Temporary QA fixtures excluded from publication.
+- Validation: habitat reachability in all 15 areas, safe routes, reveal frames and duplicate encounter lock regression checks. See tests/wild-encounter.test.mjs.
+
 # Pokémon · Kanto Journey
 
 ## Current milestone
