@@ -24,7 +24,7 @@ test("phone retains all four labelled directions plus interaction and menu contr
 test("collector entry and local theme assets remain available", () => {
   assert.match(html, /id="collectorInfoBtn"/);
   assert.match(html, /data-view="collect"/);
-  assert.match(html, /href="collector-theme.css"/);
+  assert.match(html, /href="collector-theme\.css(?:\?[^"\s]+)?"/);
   for (const file of ["collector-theme.css", "pixel-detail.mjs"])
     assert.ok(
       readFileSync(new URL("../dist/" + file, import.meta.url)).length > 0,
