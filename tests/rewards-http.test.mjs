@@ -38,6 +38,19 @@ try {
       headers: { "Content-Type": "application/json", Cookie: cookie, ...extra },
       body: JSON.stringify(body),
     });
+  // Bank deposits are operator-only (CLI); the web API must not expose them.
+  for (const path of ["/api/bank/deposit", "/api/deposit"])
+    assert.equal(
+      (await post(path, { reference: "sig:x1234", cents: 1 })).status,
+      404,
+    );
+  const odds = (
+    await (
+      await fetch(base + "/api/rewards", { headers: { Cookie: cookie } })
+    ).json()
+  ).nextOdds;
+  assert.equal(odds.baseBps, 100);
+  assert.ok(odds.bps >= 50 && odds.multiplier > 0);
   for (const junk of [null, [], 7]) {
     const bad = await post("/api/challenges/start", junk);
     assert.equal(bad.status, 400);

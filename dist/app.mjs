@@ -1,5 +1,5 @@
 import { createMotion } from "./motion.mjs?v=2.3.2";
-import { mountRewards } from "./rewards.mjs?v=2.3.2";
+import { mountRewards } from "./rewards.mjs?v=2.4.0";
 import {
   setData,
   species,

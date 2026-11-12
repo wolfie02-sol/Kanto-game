@@ -99,3 +99,11 @@ Exact, time-based movement and idle positions; cached layouts; single-pointer D-
 - Enter/Space activate focused menu buttons. Arrow keys and Space no longer scroll the page during scene transitions.
 - The rewards API rejects JSON bodies that are not objects. Browser modules share one cache version, so `motion.mjs` loads once.
 - 13 engine regression checks in `tests/engine-regressions.test.mjs`. All nine deterministic campaigns still complete with these fixes; pacing is unchanged (about 1,800–2,200 wild battles).
+
+## Version 2.4.0 — reward ladder and bank-adaptive odds
+
+- The guardian ladder grows from 3 to 10 tiers (Trail at 0 wins to Mythic at 180). Base card chance rises from 1% to 3.75%, shards from 50 to 110, guardian level from 20 to 75.
+- A pack's card chance is its base chance × a bank multiplier (×0.5–×2, capped at 10%), calculated from the spendable bank balance and the last 7 days of fee deposits. It is locked when the pack is earned and stored with the pack.
+- `npm run rewards:bank` shows bank health, or records idempotent `fee`/`topup` deposits. There is no web endpoint for deposits.
+- The rewards panel shows rank, progress to the next tier and the next pack's odds. Older reward databases are upgraded in place; existing packs keep their odds.
+- Config `sandbox-v2`. The adventure's grind-heavy pacing is intentionally unchanged.
