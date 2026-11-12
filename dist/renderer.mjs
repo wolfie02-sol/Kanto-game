@@ -1,4 +1,4 @@
-import { createWalker } from "./locomotion.mjs?v=2.4.0";
+import { createWalker } from "./locomotion.mjs?v=2.4.1";
 import {
   detailGround,
   buildingShadow,
@@ -8,7 +8,7 @@ import {
   detailRoom,
   animateScenery,
 } from "./pixel-detail.mjs";
-import { world, ZONES } from "./world.mjs";
+import { world, ZONES } from "./world.mjs?v=2.4.1";
 import { roomWorld } from "./story.mjs";
 export const TILE = 24,
   VIEW_W = 384,
@@ -361,14 +361,6 @@ function drawOutdoorStatic(c, zone) {
       box(c, x + 3, y + 4, 18, 11, "#f5e4b5");
       box(c, x + 6, y + 7, 12, 1, "#b49e73");
       box(c, x + 6, y + 10, 9, 1, "#b49e73");
-    }
-    if (o.kind === "fish") {
-      for (let i = 0; i < 4; i++) {
-        box(c, x - 1, y + i * 6, 26, 5, "#bca47b");
-        box(c, x, y + i * 6 + 4, 24, 1, "#857252");
-      }
-      box(c, x + 2, y, 2, 24, "#cfba8e");
-      box(c, x + 21, y, 2, 24, "#cfba8e");
     }
   }
 }
