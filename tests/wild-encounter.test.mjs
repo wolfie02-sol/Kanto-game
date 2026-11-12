@@ -31,6 +31,12 @@ test("every area has reachable hidden-encounter habitat and a safe north-south t
       }
     }
     assert.ok(queue.filter(([x, y]) => tiles[y][x] === 2).length >= 20, z.name);
+    const grass = tiles.flat().filter((t) => t === 2).length;
+    assert.ok(grass <= 90, `${z.name}: habitat must remain in small patches`);
+    if (zone === 1) {
+      assert.equal(tiles[10][6], 3); // Former rail-shaped fishing spot is ordinary path.
+      assert.equal(tiles[11][6], 0); // Open shoreline beside the pond.
+    }
     for (let y = 0; y < 22; y++)
       assert.equal(tiles[y][14], 3, `${z.name}: safe trail ${y}`);
   }
