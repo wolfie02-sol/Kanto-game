@@ -1,4 +1,5 @@
-import { createMotion } from "./motion.mjs?v=2.3.1";
+import { revealWild } from "./wild-encounter.mjs?v=2.4.0";
+import { createMotion } from "./motion.mjs?v=2.4.0";
 import { mountRewards } from "./rewards.mjs";
 import {
   setData,
@@ -24,7 +25,11 @@ import {
   sceneName,
   roomTransition,
 } from "./story.mjs";
-import { drawScene, loadCharacters, drawTitlePanorama } from "./renderer.mjs?v=2.3.1";
+import {
+  drawScene,
+  loadCharacters,
+  drawTitlePanorama,
+} from "./renderer.mjs?v=2.4.0";
 const $ = (s) => document.querySelector(s),
   root = $("#modalRoot"),
   canvas = $("#world"),
@@ -635,7 +640,14 @@ function encounter(fish = false) {
   if ([144, 145, 146, 150, 151].includes(id) && !state.champion) {
     id = z.pool[0];
   }
-  launchBattle([makeMon(id, level)], null, { kind: "wild" });
+  launchBattle([makeMon(id, level)], null, {
+    kind: "wild",
+    habitat: fish
+      ? "water"
+      : ZONES[state.zone].kind === "cave"
+        ? "cave"
+        : "grass",
+  });
 }
 function launchBattle(enemies, trainer, meta) {
   if (!state.party.length)
@@ -648,20 +660,32 @@ function launchBattle(enemies, trainer, meta) {
     });
   }
   if (motion.locked) return;
-  return motion.scene("battle", () => {
-    if (modal) root.innerHTML = "";
-    enemies.forEach((p) => {
-      if (!state.seen.includes(p.id)) state.seen.push(p.id);
-    });
-    battle = new Battle(state.party, enemies, trainer);
-    battle.meta = meta;
-    modal = "battle";
-    battleView = "actions";
-    renderBattle();
-    render();
-    save();
-    beep(220, 0.2);
-  });
+  return motion.scene(
+    "battle",
+    () => {
+      if (modal) root.innerHTML = "";
+      enemies.forEach((p) => {
+        if (!state.seen.includes(p.id)) state.seen.push(p.id);
+      });
+      battle = new Battle(state.party, enemies, trainer);
+      battle.meta = meta;
+      modal = "battle";
+      battleView = "actions";
+      renderBattle();
+      render();
+      save();
+      beep(220, 0.2);
+    },
+    meta.kind === "wild"
+      ? () =>
+          revealWild($("#screen"), {
+            id: enemies[0].id,
+            name: species(enemies[0].id).name,
+            level: enemies[0].level,
+            habitat: meta.habitat,
+          })
+      : undefined,
+  );
 }
 function battleStats(p, who) {
   let next = p.level === 100 ? p.xp + 1 : expAt(p, p.level + 1),
