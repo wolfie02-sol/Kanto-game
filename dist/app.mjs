@@ -1,6 +1,6 @@
 import { createMotion } from "./motion.mjs?v=2.3.2";
 import { createMusic } from "./music.mjs?v=2.5.0";
-import { mountRewards } from "./rewards.mjs?v=2.4.0";
+import { mountRewards } from "./rewards.mjs?v=2.6.0";
 import {
   setData,
   species,

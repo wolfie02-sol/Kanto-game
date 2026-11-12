@@ -120,3 +120,4 @@ Exact, time-based movement and idle positions; cached layouts; single-pointer D-
 - Fishing and rare wild finds only produce evolved forms at believable levels: a level-8 Gyarados is now a Magikarp, an early Jolteon an Eevee, an Omastar below 40 an Omanyte. Previously every fishing spot, from Pallet Town on, could hook fully evolved Pokémon at levels 2–12. Hand-picked grass encounter tables are unchanged.
 - Battle text names a transformed Pokémon by its own species ("Ditto fainted!", not the copied name).
 - After becoming Champion, the journal title reads "Kanto Champion." instead of "The summit is waiting."
+- Reopening the rewards panel after a reload shows the guardian challenge still running on the server. Previously, choosing a new partner silently resumed the old fight.

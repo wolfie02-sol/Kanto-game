@@ -43,6 +43,8 @@ export function mountRewards({ data, canOpen }) {
   };
   const refresh = async () => {
     snapshot = await api("rewards");
+    // Resume a challenge that is still running on the server (e.g. after a reload).
+    if (!fight && snapshot.fight) fight = snapshot.fight;
   };
   const name = (p) => esc(data().pokemon[p.id].name);
   const sprite = (p, back = false) =>

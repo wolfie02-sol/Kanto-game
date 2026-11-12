@@ -82,7 +82,12 @@ const server = http.createServer(async (req, res) => {
     let result;
     switch (route) {
       case "GET /api/rewards":
-        result = { ...store.snapshot(owner), provider: mode };
+        authority.prune();
+        result = {
+          ...store.snapshot(owner),
+          provider: mode,
+          fight: authority.current(owner),
+        };
         break;
       case "POST /api/challenges/start":
         authority.prune();
