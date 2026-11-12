@@ -32,3 +32,7 @@ Automated checks cover exclusive commits, failure cleanup, reduced motion, unsup
 Essential scene, dialogue and menu fades now drive opacity directly with requestAnimationFrame. They work without Web Animations support and retain gentle opacity feedback when reduced motion is enabled. Decorative motion remains suppressed. New content is painted while the veil is opaque; battle and return fades cover the full viewport above battle dialogs. Fades have a bounded fallback when the page is backgrounded.
 
 Regression checks cover 30/60/120Hz equivalence, exact idle/arrival, teleport snapping, gait timing, covered painting, and intermediate opacity. Browser QA confirmed touch movement and a door fade. Physical iOS/Android verification remains outstanding; the saved-battle browser check encountered a test-tool timeout.
+
+## Wild encounters (2.4.0)
+
+`wild-encounter.mjs` presents the already-created enemy before the battle wipe. `createSceneGate.run` accepts an optional preparation callback which runs under the same input lock. No new encounter roll occurs during animation. Sprite reveal uses requestAnimationFrame, a bounded background timer, and a still reduced-motion variant. Grass is rendered in native pixels in `renderer.mjs`; the old low atlas tile and floating town fence strips are no longer drawn.
