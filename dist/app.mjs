@@ -1,5 +1,5 @@
-import { revealWild } from "./wild-encounter.mjs?v=2.4.1";
-import { createMotion } from "./motion.mjs?v=2.4.1";
+import { revealWild } from "./wild-encounter.mjs?v=2.4.2";
+import { createMotion } from "./motion.mjs?v=2.4.2";
 import { mountRewards } from "./rewards.mjs";
 import {
   setData,
@@ -15,7 +15,7 @@ import {
   freshVolatile,
   hasUsableMoves,
 } from "./engine.mjs";
-import { ZONES, GYMS, LEAGUE, WATER, world } from "./world.mjs?v=2.4.1";
+import { ZONES, GYMS, LEAGUE, WATER, world } from "./world.mjs?v=2.4.2";
 import {
   newAdventure,
   migrateAdventure,
@@ -29,7 +29,7 @@ import {
   drawScene,
   loadCharacters,
   drawTitlePanorama,
-} from "./renderer.mjs?v=2.4.1";
+} from "./renderer.mjs?v=2.4.2";
 const $ = (s) => document.querySelector(s),
   root = $("#modalRoot"),
   canvas = $("#world"),
@@ -698,7 +698,7 @@ function renderBattle() {
     e = b.enemy;
   let actions = "";
   if (b.outcome) {
-    actions = `<button class="primary battle-full" data-action="battle-finish">${b.outcome === "won" ? "Victory! Continue →" : b.outcome === "caught" ? "Welcome to the team! →" : "Continue →"}</button>`;
+    actions = `<button class="battle-full battle-result" data-action="battle-finish">${b.outcome === "won" ? "Victory! Continue →" : b.outcome === "caught" ? "Welcome to the team! →" : "Continue →"}</button>`;
   } else if (battleView === "moves") {
     actions =
       p.moves
