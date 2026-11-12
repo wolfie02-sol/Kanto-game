@@ -107,3 +107,10 @@ Exact, time-based movement and idle positions; cached layouts; single-pointer D-
 - `npm run rewards:bank` shows bank health, or records idempotent `fee`/`topup` deposits. There is no web endpoint for deposits.
 - The rewards panel shows rank, progress to the next tier and the next pack's odds. Older reward databases are upgraded in place; existing packs keep their odds.
 - Config `sandbox-v2`. The adventure's grind-heavy pacing is intentionally unchanged.
+
+## Version 2.5.0 — original soundtrack and post-battle fixes
+
+- Original chiptune music written for this game (not taken from any existing soundtrack): home, town, route, forest/cave, wild battle and trainer/Gym/League battle loops, plus victory and healing jingles. Two pulse voices, a triangle bass and noise drums synthesized with Web Audio; no audio files.
+- The Sound button turns music and effects on together and is remembered on this device. Audio starts on the first tap or key press, pauses in background tabs, and tracks crossfade as you move between areas and battles.
+- Knocking out the opponent's last Pokémon is now a win even if your last Pokémon faints the same turn (poison, burn, recoil, Explosion). Previously it became a loss: you lost 10% of your money, got no badge, and were sent back.
+- After a defeat with no Pokémon Center used yet, you return to the nearest town with a Center behind you, not Pallet Town. A double-knockout win carries your team to that Center with no penalty.

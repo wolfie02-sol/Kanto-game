@@ -23,6 +23,7 @@ Move with arrows/WASD; interact with E/Space; use the on-screen controls on a ph
 | Battle rules, damage, types, status, XP, evolution              | `dist/engine.mjs`                                      |
 | Towns, routes, encounters, Gyms and League teams                | `dist/world.mjs`                                       |
 | Camera and pixel-art drawing                                    | `dist/renderer.mjs`                                    |
+| Music: tracks, tempo and which track plays where                | `dist/music.mjs`, `musicTrack()` in `dist/app.mjs`     |
 | Page layout, close view, battle appearance                      | `dist/index.html`, `dist/style.css`, `dist/rework.css` |
 | Rewards screen and pack reveal                                  | `dist/rewards.mjs`, `dist/rewards.css`                 |
 | Pack tiers, sample odds, shard amounts and daily limit          | `config/rewards.mjs`                                   |

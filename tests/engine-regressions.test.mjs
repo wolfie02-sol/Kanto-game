@@ -199,3 +199,17 @@ test("Explosion faints the user even when it misses", () => {
   assert.equal(a.hp, 0);
   assert.equal(species(a.id).name, "Geodude");
 });
+
+test("knocking out the last opponent wins even if your last Pokémon falls too", () => {
+  let a = makeMon(7, 30),
+    d = makeMon(19, 5);
+  a.moves = [{ id: 55, pp: 25 }];
+  d.moves = [SPLASH];
+  let b = new Battle([a], [d], "Trainer Test", fixed(0.5));
+  a.status = "psn";
+  a.hp = 1;
+  b.act({ type: "move", index: 0 }, bag());
+  assert.equal(a.hp, 0);
+  assert.equal(b.outcome, "won");
+  assert.ok(!b.logs.some((l) => l.includes("Returning to the Pokémon Center")));
+});

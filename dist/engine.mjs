@@ -756,7 +756,8 @@ export class Battle {
     }
     if (a.hp <= 0) {
       logs.push(`${species(a.id).name} fainted!`);
-      if (!this.party.some((p) => p.hp > 0)) {
+      // Knocking out the last opponent wins, even if your last Pokémon falls the same turn.
+      if (!this.party.some((p) => p.hp > 0) && this.outcome !== "won") {
         this.outcome = "lost";
         logs.push("Your team needs rest. Returning to the Pokémon Center.");
       }

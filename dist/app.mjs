@@ -1,4 +1,5 @@
 import { createMotion } from "./motion.mjs?v=2.3.2";
+import { createMusic } from "./music.mjs?v=2.5.0";
 import { mountRewards } from "./rewards.mjs?v=2.4.0";
 import {
   setData,
@@ -13,7 +14,7 @@ import {
   validateSave,
   freshVolatile,
   hasUsableMoves,
-} from "./engine.mjs?v=2.3.2";
+} from "./engine.mjs?v=2.5.0";
 import { ZONES, GYMS, LEAGUE, WATER, world } from "./world.mjs";
 import {
   newAdventure,
@@ -46,6 +47,8 @@ let state = null,
   saveTimer,
   toastTimer;
 const SAVE = "kanto-journey-v1";
+const SOUND_PREF = "kanto-sound";
+const music = createMusic();
 const motion = createMotion({
   screen: $("#screen"),
   modalRoot: root,
@@ -476,6 +479,7 @@ function interact() {
           ]);
     case "center":
       state.party.forEach(heal);
+      music.jingle("heal");
       state.lastCenter = state.zone;
       save();
       render();
@@ -516,6 +520,7 @@ function interact() {
     }
     case "house":
       state.party.forEach(heal);
+      music.jingle("heal");
       state.bag.ball += state.defeated.includes(`rest-${state.zone}`) ? 0 : 3;
       if (!state.defeated.includes(`rest-${state.zone}`))
         state.defeated.push(`rest-${state.zone}`);
@@ -740,15 +745,28 @@ function battleAct(action) {
     busy = false;
   }, 220);
 }
-function recover() {
+// The last Pokémon Center used, or else the nearest town with one on the way back.
+function centerZone() {
+  if (state.lastCenter !== undefined) return state.lastCenter;
+  for (let z = state.zone; z > 0; z--)
+    if (["town", "island", "plateau"].includes(ZONES[z].kind)) return z;
+  return 0;
+}
+function recover(penalty = true) {
   state.party.forEach(heal);
   state.scene = "outdoor";
-  state.zone = state.lastCenter ?? 0;
+  state.zone = centerZone();
   state.x = 14;
   state.y = 17;
-  state.money = Math.floor(state.money * 0.9);
-  state.league = 0;
-  message("Your team has recovered. Take a breath, then try again.");
+  if (penalty) {
+    state.money = Math.floor(state.money * 0.9);
+    state.league = 0;
+  }
+  message(
+    penalty
+      ? `Your team has recovered at the ${ZONES[state.zone].name} Pokémon Center. Take a breath, then try again.`
+      : `What a finish! Your exhausted team was carried to the ${ZONES[state.zone].name} Pokémon Center to rest.`,
+  );
 }
 function finishBattle() {
   if (!battle?.outcome || motion.locked) return;
@@ -841,6 +859,8 @@ function settleBattle() {
     }
   }
   if (b.outcome === "lost") recover();
+  // A win where your last Pokémon also fell: keep the win, then rest at a Center.
+  else if (!state.party.some((p) => p.hp > 0)) recover(false);
   state.party.forEach(freshVolatile);
   battle = null;
   modal = "";
@@ -1182,6 +1202,7 @@ function talkMom() {
     );
   } else {
     state.party.forEach(heal);
+    music.jingle("heal");
     render();
     save();
     say([
@@ -1525,11 +1546,23 @@ $("#touchB").onclick = () => {
   if (!motion.locked && !battle && !storyLines.length)
     modal ? close() : state ? settings() : titleScreen();
 };
-$("#soundBtn").onclick = () => {
-  sound = !sound;
+function setSound(on) {
+  sound = on;
   $("#soundBtn").textContent = sound ? "♫ Sound on" : "♫ Sound off";
+  $("#soundBtn").setAttribute("aria-pressed", String(sound));
+  music.setEnabled(sound);
+  try {
+    localStorage.setItem(SOUND_PREF, sound ? "on" : "off");
+  } catch {}
+}
+$("#soundBtn").onclick = () => {
+  setSound(!sound);
   beep(660);
 };
+try {
+  // Remembered choice; audio itself starts on the first tap or key press.
+  if (localStorage.getItem(SOUND_PREF) === "on") setSound(true);
+} catch {}
 document.querySelectorAll("[data-view]").forEach(
   (b) =>
     (b.onclick = () => {
@@ -1644,8 +1677,25 @@ document.querySelectorAll("[data-dir]").forEach((button) => {
       };
 });
 window.addEventListener("beforeunload", save);
+// Which background track fits what is on screen right now.
+function musicTrack() {
+  if (!state || modal === "title" || modal === "setup") return "home";
+  if (battle) {
+    if (["won", "caught"].includes(battle.outcome)) return "victory";
+    if (battle.outcome) return null;
+    return battle.meta?.kind === "wild" ? "battle" : "boss";
+  }
+  if (state.scene !== "outdoor" || state.zone === 0) return "home";
+  let kind = ZONES[state.zone].kind;
+  return kind === "route"
+    ? "route"
+    : kind === "forest" || kind === "cave"
+      ? "forest"
+      : "town";
+}
 function loop(t) {
   if (pressed.size) move([...pressed].at(-1));
+  music.play(musicTrack());
   if (state) canvas.setAttribute("data-position", `${state.x},${state.y}`);
   drawScene(ctx, state, t);
   requestAnimationFrame(loop);
