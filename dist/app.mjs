@@ -1030,6 +1030,15 @@ function captureNames() {
   draftName = $("#nameInput")?.value ?? draftName;
   draftRival = $("#rivalInput")?.value ?? draftRival;
 }
+// Sideways phones: bring the whole game view on screen when play starts.
+function showGameOnPhone() {
+  if (
+    matchMedia(
+      "(max-height: 500px) and (orientation: landscape) and (pointer: coarse)",
+    ).matches
+  )
+    $("#screen").scrollIntoView({ block: "start" });
+}
 function beginStory() {
   if (motion.locked) return;
   return motion.scene("story", () => {
@@ -1044,6 +1053,7 @@ function beginStory() {
     root.innerHTML = "";
     storyLines = [];
     pressed.clear();
+    showGameOnPhone();
     render();
     save();
     message("Morning sunlight spills across the floor.");
@@ -1279,6 +1289,7 @@ root.addEventListener("click", (e) => {
     return motion.scene("story", () => {
       modal = "";
       root.innerHTML = "";
+      showGameOnPhone();
       render();
       resumeStory();
       if (!storyLines.length) learnPending();

@@ -121,3 +121,5 @@ Exact, time-based movement and idle positions; cached layouts; single-pointer D-
 - Battle text names a transformed Pokémon by its own species ("Ditto fainted!", not the copied name).
 - After becoming Champion, the journal title reads "Kanto Champion." instead of "The summit is waiting."
 - Reopening the rewards panel after a reload shows the guardian challenge still running on the server. Previously, choosing a new partner silently resumed the old fight.
+- Phones held sideways: the map fits the screen height and the D-pad and A/B buttons float over its sides, so you no longer scroll down to reach the controls. Continuing or starting a game scrolls the map into view.
+- Touch screens wider than 760px (larger phones held sideways, tablets) now get the proper D-pad cross and the themed round A/B buttons, instead of a scrambled grid of blank squares.
