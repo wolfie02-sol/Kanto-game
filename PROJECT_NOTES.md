@@ -1,3 +1,9 @@
+# Map correction — 2.4.1
+
+- Removed the rail-shaped fishing platform shown beside the pond in the phone screenshot, including the legacy overview renderer. Fishing interaction remains available.
+- Replaced blanket procedural grass with separated encounter meadows. Route 1 now has 60 grass tiles instead of hundreds; open shorelines and town/route paths remain safe.
+- Explicit module version URLs refresh the changed world layout on phones. Save coordinates, encounters and captures remain compatible.
+
 # Current update — tall grass encounters (v2.4.0)
 
 - Native pixel grass clumps and foreground boot occlusion make encounter habitat obvious. No wild Pokémon are drawn on the map. Existing grass-only encounter rolls and fishing pools remain intact.
